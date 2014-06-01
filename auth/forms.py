@@ -6,7 +6,7 @@ Created on 2014-4-11
 @author: nttdocomo
 '''
 import web
-import utils, net
+from web import utils, net
 from web import form
 from models import RegistrationProfile
 # from django.forms import ValidationError
