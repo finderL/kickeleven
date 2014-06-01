@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #!/usr/bin/python2.5
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

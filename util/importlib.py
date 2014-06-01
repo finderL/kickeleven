@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Taken from Python 2.7 with permission from/by the original author.
 import sys
 
