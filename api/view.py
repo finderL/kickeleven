@@ -5,7 +5,8 @@ Created on 2011-9-12
 @author: nttdocomo
 '''
 import datetime, json, web, urlparse, Image, StringIO, hashlib
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, WebpySession, parseAcceptLanguage
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, parseAcceptLanguage
+from sessions.models import WebpySession
 from settings import TEMP_DIR
 
 class ExtendedEncoder(json.JSONEncoder):
