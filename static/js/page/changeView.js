@@ -15,10 +15,10 @@ define(function(require){
 			new Breadcrumbs({
 				breadcrumbs:[{
 					text:'Home',
-					href:'/#admin/'
+					href:'/admin/'
 				},{
 					text:this.model_name,
-					href:'/#admin/'+this.model_name.toLowerCase()+'/'
+					href:'/admin/#'+this.model_name.toLowerCase()+'/'
 				},{
 					text:i18n.__('Update'),
 					active:true

@@ -7,7 +7,7 @@ define(function(require){
 	Breadcrumbs = require('../breadcrumbs'),
 	Table = require('../taurus/panel/table');
 	return Base.extend({
-		tpl:'<div class="col-lg-12 flex-height"><a class="btn btn-primary" href="/#admin/<%=model%>/add/">' + i18n.__("Add") + '</a></div>',
+		tpl:'<div class="col-lg-12 flex-height"><a class="btn btn-primary" href="/admin/<%=model%>/add/">' + i18n.__("Add") + '</a></div>',
 		uiClass:'change-list',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
@@ -24,7 +24,7 @@ define(function(require){
 			new Breadcrumbs({
 				breadcrumbs:[{
 					text:'Home',
-					href:'/#admin/'
+					href:'/admin/#home'
 				},{
 					text:this.title,
 					active:true

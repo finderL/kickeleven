@@ -20,5 +20,5 @@ TEMP_DIR = os.path.join(STATIC_DIR,'tmp')
 ACCOUNT_ACTIVATION_DAYS = 1
 DEFAULT_FROM_EMAIL = 'nttdocomo.ouyi@gmail.com'
 DATABASE_USERNAME = 'root'
-DATABASE_PASSWORD = ''
+DATABASE_PASSWORD = ':82Gz827m'
 DATABASE_NAME = 'kickeleven'

@@ -48,7 +48,8 @@ define(function(require, exports) {
 		},
 		get_urls:function(){
 			var urlpatterns = {
-				'':_.bind(this.index,this)
+				'':_.bind(this.index,this),
+				'home':_.bind(this.index,this)
 			};
 			_.each(k11.admin,function(model_admin,key){
 				$.extend(urlpatterns,patterns(vsprintf('%s', [key.toLowerCase()]),model_admin.get_urls()));
@@ -61,7 +62,7 @@ define(function(require, exports) {
 			_.each(k11.admin,function(model_admin,model_name){
 				model_list.push({
 					'name':model_name,
-					'admin_url':'/#admin/' + model_name.toLowerCase() + '/'
+					'admin_url':'/admin/#' + model_name.toLowerCase() + '/'
 				});
 			});
 			context = {
@@ -150,13 +151,13 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/continent/'+data.id+'/">'+value+'</a>';
+				return '<a data-item-id="'+data.id+'" href="/admin/#continent/'+data.id+'/">'+value+'</a>';
 			},
 			dataIndex : 'name'
 		},{
 			text : i18n.__('Action'),
-			flex : 1,
 			sortable : false,
+			width:100,
 			renderer : function(value,data) {
 				return '<a href="" class="halflings trash" data-name="trash" data-type="" data-prefix="halflings" data-utf="E020" data-item-id="'+data.id+'"></a>';
 			},
@@ -180,7 +181,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/nation/'+data.id+'/">'+value+'</a>';
+				return '<a data-item-id="'+data.id+'" href="/admin/#nation/'+data.id+'/">'+value+'</a>';
 			},
 			dataIndex : 'short_name'
 		},{
@@ -272,7 +273,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/position/'+data.id+'/">'+ _.find(k11.POSITION,function(item){
+				return '<a data-item-id="'+data.id+'" href="/admin/#position/'+data.id+'/">'+ _.find(k11.POSITION,function(item){
 					return item.value == value;
 				}).text + '</a>';
 			},
@@ -327,7 +328,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/player/'+data.id+'/">'+value+'</a>';;
+				return '<a data-item-id="'+data.id+'" href="/admin/#player/'+data.id+'/">'+value+'</a>';;
 			},
 			dataIndex : 'full_name'
 		},{
@@ -432,7 +433,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/playertranslation/'+data.id+'/">'+value+'</a>';;
+				return '<a data-item-id="'+data.id+'" href="/admin/#playertranslation/'+data.id+'/">'+value+'</a>';;
 			},
 			dataIndex : 'full_name'
 		},{
@@ -483,7 +484,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/club/'+data.id+'/">'+value+'</a>';;
+				return '<a data-item-id="'+data.id+'" href="/admin/#club/'+data.id+'/">'+value+'</a>';;
 			},
 			dataIndex : 'club_name'
 		},{
@@ -588,7 +589,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/clubtranslation/'+data.id+'/">'+value+'</a>';;
+				return '<a data-item-id="'+data.id+'" href="/admin/#clubtranslation/'+data.id+'/">'+value+'</a>';;
 			},
 			dataIndex : 'club_name'
 		},{
@@ -639,7 +640,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/clubteam/'+data.id+'/">'+value.club_name+'</a>';
+				return '<a data-item-id="'+data.id+'" href="/admin/#clubteam/'+data.id+'/">'+value.club_name+'</a>';
 			},
 			dataIndex : 'club'
 		},{
@@ -685,7 +686,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/nationteam/'+data.id+'/">'+value.full_name+'</a>';
+				return '<a data-item-id="'+data.id+'" href="/admin/#nationteam/'+data.id+'/">'+value.full_name+'</a>';
 			},
 			dataIndex : 'nation'
 		},{
@@ -737,7 +738,7 @@ define(function(require, exports) {
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/#admin/team2player/'+data.id+'/">'+ value.team_name + '</a>';
+				return '<a data-item-id="'+data.id+'" href="/admin/#team2player/'+data.id+'/">'+ value.team_name + '</a>';
 			},
 			dataIndex : 'team'
 		},{

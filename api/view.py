@@ -5,7 +5,7 @@ Created on 2011-9-12
 @author: nttdocomo
 '''
 import datetime, json, web, urlparse, Image, StringIO, hashlib
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTeam, ClubTeamPlayer, Session, parseAcceptLanguage
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, WebpySession, parseAcceptLanguage
 from settings import TEMP_DIR
 
 class ExtendedEncoder(json.JSONEncoder):
@@ -202,9 +202,13 @@ def club(id=None, p=0, limit=20, admin=None):
             offset = (int(p) - 1)*limit
             club = query.offset(offset).limit(limit).all()
             n = ResultWrapper(club, club=[v.to_api(admin) for v in club],count=query.count())
+    db.close()
     return n
 
 def clubtranslation(id=None, p=0, limit=20):
+    db = DB_Session()
+    query = db.query(ClubTranslation)
+    method = web.ctx.method
     if web.ctx.method in ('POST','PUT','PATCH'):
         i=web.data()
         i=json.loads(i)
@@ -214,13 +218,13 @@ def clubtranslation(id=None, p=0, limit=20):
             n = db.insert('clubtranslation', **i)
     else:
         if id:
-            n = db.select('clubtranslation', where="id = " + id)
-            n = {'clubtranslation' : n.list()[0]}
+            clubtranslation = query.get(int(id))
+            n = ResultWrapper(clubtranslation, clubtranslation=clubtranslation.to_api())
         else:
             offset = (int(p) - 1)*int(limit)
-            n = db.select('clubtranslation', limit=int(limit), offset=offset)
-            results = db.query("SELECT COUNT(*) AS clubs FROM clubtranslation")
-            n = {'clubtranslation' : n.list(),'count':results[0].clubs}
+            clubtranslation = query.offset(offset).limit(limit).all()
+            n = ResultWrapper(clubtranslation, clubtranslation=[v.to_api() for v in clubtranslation],count=query.count())
+    db.close()
     return n
 
 def player(id=None, p=0, limit=20, admin=None):
@@ -295,23 +299,27 @@ def playertranslation(id=None, p=0, limit=20):
 
 def clubsquad(club=None, p=0, limit=20):
     if club:
+#         db = DB_Session()
+#         query = db.query(Club)
+#         club = query.get(int(club))
+#         team = club.team.one()
+#         player = [v.player for v in team.team2player]
         db = DB_Session()
-        query = db.query(Club)
-        club = query.get(int(club))
-        team = club.team.one()
-        player = [v.player_child for v in team.team2player]
-        n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=query.count())
+        player = db.query(Player).join(ClubTeamPlayer, Player.id == ClubTeamPlayer.player_id).join(ClubTeam,ClubTeam.id == ClubTeamPlayer.team_id).filter(ClubTeam.club == int(club))
+        n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n
 
 def nationsquad(nation=None, p=0, limit=20):
     if nation:
+#         db = DB_Session()
+#         query = db.query(Nation)
+#         nation = query.get(int(nation))
+#         team = nation.team.one()
+#         player = [v.player for v in team.team2player]
         db = DB_Session()
-        query = db.query(Nation)
-        nation = query.get(int(nation))
-        team = nation.team.one()
-        player = [v.player_child for v in team.team2player]
-        n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=query.count())
+        player = db.query(Player).join(NationTeamPlayer, Player.id == NationTeamPlayer.player_id).join(NationTeam,NationTeam.id == NationTeamPlayer.team_id).filter(NationTeam.nation == int(nation))
+        n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n
 
@@ -339,7 +347,7 @@ def clubteam(id=None, p=0, limit=20,admin=None):
     else:
         if id:
             team = query.get(int(id))
-            player = [v.player_child for v in team.team2player]
+            player = [v.player for v in team.team2player]
             team = team.to_api(admin)
             team['player'] = [v.to_api(admin) for v in player]
             n = ResultWrapper(team, team=team)
@@ -375,7 +383,7 @@ def nationteam(id=None, p=0, limit=20,admin=None):
     else:
         if id:
             team = query.get(int(id))
-            player = [v.player_child for v in team.team2player]
+            player = [v.player for v in team.team2player]
             team = team.to_api(admin)
             team['player'] = [v.to_api(admin) for v in player]
             n = ResultWrapper(team, team=team)

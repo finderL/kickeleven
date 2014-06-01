@@ -13,7 +13,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api?method=club_squad'
+			url : '/api?method=clubsquad'
 		},
 		paginator_ui : {
 			// the lowest page index your API allows to be accessed
@@ -24,7 +24,7 @@ define(function(require) {
 			currentPage : 1,
 
 			// how many items per page should be shown
-			perPage : 10,
+			perPage : 20,
 
 			// a default number of total pages to query in case the API or
 			// service you are using does not support providing the total

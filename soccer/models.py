@@ -14,7 +14,7 @@ import settings
 from django.utils.hashcompat import md5_constructor, sha_constructor
 from django.utils.encoding import smart_str
 from sqlalchemy import create_engine, Column, ForeignKey
-from sqlalchemy.orm import sessionmaker, class_mapper
+from sqlalchemy.orm import sessionmaker, class_mapper, scoped_session
 from sqlalchemy.types import CHAR, String, Date, DateTime, Text, Boolean, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import TINYINT
@@ -43,9 +43,10 @@ def parseAcceptLanguage(acceptLanguage):
     languages = acceptLanguage.split(",")
     return languages[0].lower()
 
-DB_CONNECT_STRING = 'mysql+mysqldb://root@localhost/kickeleven?charset=utf8'
+DB_CONNECT_STRING = 'mysql+mysqldb://%s%s@localhost/%s?charset=utf8' % (settings.DATABASE_USERNAME, settings.DATABASE_PASSWORD, settings.DATABASE_NAME)
 engine = create_engine(DB_CONNECT_STRING, echo=True)
 DB_Session = sessionmaker(bind=engine,expire_on_commit=False)
+sql_session = scoped_session(sessionmaker(bind=engine))  
 
 # db = web.database(dbn='mysql', user='root', pw='', db='kickeleven')
 # db.supports_multiple_insert = True
@@ -128,7 +129,7 @@ class TranslationModel(ApiModel):
         session.close()
         return translation
 
-class Session(BaseModel):
+class WebpySession(BaseModel):
     '''webpy的session表'''
     __tablename__ = 'sessions'
     
@@ -136,51 +137,45 @@ class Session(BaseModel):
     atime = Column(DateTime, nullable=False, default=datetime.datetime.now)
     data = Column(Text, nullable=True)
 
+#webpy的session是有bug的，这里修复
+class Session(web.session.Session):
+    '''修复webpy的session过期时间无效的bug'''
+    def _setcookie(self, session_id, expires='', **kw):
+        if expires == '':
+            expires = self._config.timeout
+        super(Session, self)._setcookie(session_id, expires, **kw)
+
 class SQLAStore(web.session.Store):
     '''webpy的session存储在sqlalchemy中的接口'''
     def __init__(self):
-        self.table = Session.__table__
+        self.table = WebpySession.__table__
     
-    def __contains__(self, key):
-        db = DB_Session()
-        session = db.execute(self.table.select(self.table.c.session_id==key)).fetchone()
-        db.close()
-        return bool(session)
-    
-    def __getitem__(self, key):
-        db = DB_Session()
-        s = db.execute(
-            self.table.select(self.table.c.session_id==key)).fetchone()
-        if s is None:
-            raise KeyError
-        else:
-            db.execute(self.table.update().values(
-                atime=datetime.datetime.now()).where(self.table.c.session_id==key))
-            db.close()
-            return self.decode(s[self.table.c.data])
-    
-    def __setitem__(self, key, value):
-        db = DB_Session()
-        pickled = self.encode(value)
-        if key in self:
-            db.execute(self.table.update().values(
-                data=pickled).where(self.table.c.session_id==key))
-        else:
-            db.execute(self.table.insert().values(
-                session_id=key, data=pickled))
-        db.close()
-    
-    def __delitem__(self, key):
-        db = DB_Session()
-        db.execute(self.table.delete(self.table.c.session_id==key))
-        db.close()
-    
-    def cleanup(self, timeout):
-        db = DB_Session()
-        timeout = datetime.timedelta(timeout / (24. * 60 * 60))
-        last_allowed_time = datetime.datetime.now() - timeout
-        db.execute(self.table.delete(self.table.c.atime<last_allowed_time))
-        db.close()
+    def __contains__(self, key):  
+        return bool(sql_session.execute(self.table.select(self.table.c.session_id==key)).fetchone())  
+  
+    def __getitem__(self, key):  
+        s = sql_session.execute(self.table.select(self.table.c.session_id==key)).fetchone()  
+        if s is None:  
+            raise KeyError  
+        else:  
+            sql_session.execute(self.table.update().values(atime=datetime.datetime.now()).where(self.table.c.session_id==key))  
+            return self.decode(s[self.table.c.data])  
+  
+    def __setitem__(self, key, value):  
+        pickled = self.encode(value)  
+        if key in self:  
+            sql_session.execute(self.table.update().values(data=pickled).where(self.table.c.session_id==key))  
+        else:  
+            sql_session.execute(self.table.insert().values(session_id=key, data=pickled))  
+        sql_session.commit()  
+  
+    def __delitem__(self, key):  
+        sql_session.execute(self.table.delete(self.table.c.session_id==key))  
+  
+    def cleanup(self, timeout):  
+        timeout = datetime.timedelta(timeout/(24.0*60*60))  
+        last_allowed_time = datetime.datetime.now() - timeout  
+        sql_session.execute(self.table.delete(self.table.c.atime<last_allowed_time)) 
 
 UNUSABLE_PASSWORD = '!' # This will never be a valid hash
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
@@ -194,6 +189,7 @@ class User(ApiModel):
     email = Column(String(60))
     password = Column(CHAR(60),default=UNUSABLE_PASSWORD)
     is_active = Column(Boolean, default=True)
+    privilege = Column(TINYINT(1), default=0)
 
     def set_password(self, raw_password):
         algo = 'sha1'
@@ -362,7 +358,7 @@ class Nation(TranslationModel):
     small_flag = Column(CHAR(45))
     player = relationship("Player", backref="nationality")
     translation = relationship("NationTranslation", backref="nation_ref", lazy="dynamic")
-    club = relationship("Club", backref="nation_ref", lazy="dynamic")
+    club = relationship("Club", backref="nation", lazy="dynamic")
     team = relationship('NationTeam', backref="nation_ref", lazy="dynamic")
 
     def get_tranlation(self):
@@ -386,7 +382,7 @@ class Club(TranslationModel):
     club_name = Column(String(60)) # or Column(String(30))
     nickname = Column(String(30)) # or Column(String(30))
     year_founded = Column(Date())
-    nation = Column(TINYINT(3), ForeignKey('nation.id'))
+    nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
     normal_logo = Column(CHAR(45))
     small_logo = Column(CHAR(45))
     home_kit = Column(CHAR(45))
@@ -398,7 +394,7 @@ class Club(TranslationModel):
     def to_api(self, admin):
         db = DB_Session()
         o = super(Club, self).to_api(admin)
-        nation = self.nation_ref
+        nation = self.nation
         try:
             o['nation'] = nation.to_api(admin)
         except Exception,e:
@@ -466,22 +462,23 @@ class TeamPlayer(BaseModel):
 class ClubTeamPlayer(TeamPlayer):
     __tablename__ = 'clubteam2player'
 
-    team = Column(Integer, ForeignKey('clubteam.id'), primary_key=True)
-    player = Column(Integer, ForeignKey('player.id'), primary_key=True)
-    player_child = relationship("Player", backref="clubteam2player")
+    team_id = Column(Integer, ForeignKey('clubteam.id'), primary_key=True)
+    player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
+    player = relationship("Player", backref="clubteam2player")
 
 class NationTeamPlayer(TeamPlayer):
     __tablename__ = 'nationteam2player'
 
-    team = Column(Integer, ForeignKey('nationteam.id'), primary_key=True)
-    player = Column(Integer, ForeignKey('player.id'), primary_key=True)
-    player_child = relationship("Player", backref="nationteam2player")
+    team_id = Column(Integer, ForeignKey('nationteam.id'), primary_key=True)
+    player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
+    player = relationship("Player", backref="nationteam2player")
 
 class PlayerPosition(BaseModel):
     __tablename__ = 'player2position'
 
-    player = Column(Integer, ForeignKey('player.id'), primary_key=True)
-    position = Column(Integer, ForeignKey('position.id'), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
+    position_id = Column(Integer, ForeignKey('position.id'), primary_key=True)
     position_child = relationship("Position", backref="player2position")
 
 class Player(TranslationModel):

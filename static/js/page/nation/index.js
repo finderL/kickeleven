@@ -7,7 +7,7 @@ define(function(require){
 	Table = require('../../taurus/panel/table'),
 	Squad = require('../../collection/nationSquad'),
 	Nation = require('../../model/nation'),
-	//ClubPanel = require('../../panel/clubPanel'),
+	Panel = require('../../panel/nationPanel'),
 	i18n = require('../../i18n/zh-cn');
 	return Base.extend({
 		events:{
@@ -24,10 +24,10 @@ define(function(require){
 			this.listPlayer();
 			this.model.fetch({
 				success:function(){
-					/*new ClubPanel({
+					new Panel({
 						model:me.model,
 						renderTo:me.$el.find('.col-lg-3').empty()
-					});*/
+					});
 				}
 			});
 		},
