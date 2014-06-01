@@ -8,15 +8,15 @@ from auth.models import User,RegistrationProfile
 from db.models import DB_Session
 from auth.forms import RegistrationForm
 
-global session
-
 class AuthBase:
     def __init__(self):
+        session = web.config.session
         if (not hasattr(session, 'login')) or session.login == 0:
             raise web.seeother('/admin/login/',absolute=True)
 
 class Admin(AuthBase):
     def GET(self):
+        session = web.config.session
         render = web.template.render('templates')
         return render.admin(session.login)
         
@@ -25,6 +25,7 @@ class Login:
         render = web.template.render('templates')
         return render.login()
     def POST(self):
+        session = web.config.session
         input = web.input()
         email, password = input.email, input.password
         db = DB_Session()

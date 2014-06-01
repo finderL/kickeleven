@@ -7,7 +7,7 @@ import web
 import utils, net
 from web import form
 from models import RegistrationProfile
-from django.forms import ValidationError
+# from django.forms import ValidationError
 
 vpass = form.regexp(r".{3,20}$", 'must be between 3 and 20 characters')
 vemail = form.regexp(r".*@.*", "must be a valid email address")
@@ -62,12 +62,12 @@ class RegistrationForm(BaseForm):
                                                                     )
         return new_user
     
-    def validates(self, source=None, _validate=True, **kw):
-        out = super(RegistrationForm, self).validates(source=source, _validate=_validate, **kw)
-        if out:
-            source = source or kw or web.input()
-            if 'password1' in source and 'password2' in source:
-                if source['password1'] != source['password2']:
-                    out = False
-                    raise ValidationError(u'You must type the same password each time')
-        return out
+#     def validates(self, source=None, _validate=True, **kw):
+#         out = super(RegistrationForm, self).validates(source=source, _validate=_validate, **kw)
+#         if out:
+#             source = source or kw or web.input()
+#             if 'password1' in source and 'password2' in source:
+#                 if source['password1'] != source['password2']:
+#                     out = False
+#                     raise ValidationError(u'You must type the same password each time')
+#         return out
