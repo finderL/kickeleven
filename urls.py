@@ -7,6 +7,7 @@ Created on 2014-1-23
 '''
 import web
 from auth.controllers import *
+from soccer.controllers import *
 from api.urls import app_api
 from sessions.models import Session, SQLAStore
 
@@ -26,7 +27,6 @@ urls = (
 )
 app = web.application(urls, locals())
 
-global session
 if web.config.get('session') is None:
     web.config.session = session = Session(app, SQLAStore())
 else:

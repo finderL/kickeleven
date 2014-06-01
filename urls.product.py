@@ -7,6 +7,7 @@ Created on 2014-1-23
 '''
 import web
 from auth.controllers import *
+from soccer.controllers import *
 from api.urls import app_api
 from sessions.models import Session, SQLAStore
 
