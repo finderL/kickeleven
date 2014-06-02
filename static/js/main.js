@@ -7,7 +7,7 @@ define(function(require){
 	var panel,
 		clubCreatePanel,
 		messageDialog,
-	i18n = require('./i18n/zh-cn');
+	i18n = require('./i18n/{locale}');
 	taurus.augmentObject('taurus',{
 		POSITION:['Striker','Attack Midfielder','Midfielder','Defensive Midfielder','Wing Back','Defender','Sweeper','Goalkeeper']
 	});
