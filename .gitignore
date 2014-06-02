@@ -42,3 +42,9 @@ validation-report.json
 node_modules
 static/tmp
 bower_components
+
+# Files to ignore
+urls.py
+settings.py
+static/js/config.js
+static/js/admin/config.js

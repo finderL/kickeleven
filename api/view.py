@@ -5,8 +5,9 @@ Created on 2011-9-12
 
 @author: nttdocomo
 '''
-import datetime, json, web, urlparse, Image, StringIO, hashlib
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, parseAcceptLanguage
+import datetime, json, web, urlparse, StringIO, hashlib
+from PIL import Image
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, parseAcceptLanguage
 from sessions.models import WebpySession
 from settings import TEMP_DIR
 
@@ -75,12 +76,6 @@ class Upload():
             'filename':filename
         })
 
-def nation_all():
-    db = DB_Session()
-    entries = db.select('nation')
-    return {'nations' : entries.list()}
-#     return ResultWrapper(entries, entries=entries.list())
-
 def nation(id=None, p=0, limit=20, admin=None):
     db = DB_Session()
     query = db.query(Nation)
@@ -106,6 +101,34 @@ def nation(id=None, p=0, limit=20, admin=None):
             offset = (int(p) - 1)*limit
             nation = query.offset(offset).limit(limit).all()
             n = ResultWrapper(nation, nation=[v.to_api(admin) for v in nation],count=query.count())
+    db.close()
+    return n
+
+def nationtranslation(id=None, p=0, limit=20):
+    db = DB_Session()
+    query = db.query(NationTranslation)
+    method = web.ctx.method
+    if method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if method in ('PUT','PATCH'):
+            nationtranslation = query.get(int(id))
+            for name,value in i.items():
+                setattr(nationtranslation, name, value)
+        else:
+            nationtranslation = NationTranslation(**i)
+            db.add(nationtranslation)
+            db.flush()
+            db.refresh(nationtranslation)
+        db.commit()
+        n = ResultWrapper(nationtranslation, nationtranslation=nationtranslation.to_api())
+    else:
+        if id:
+            nationtranslation = query.get(int(id))
+            n = ResultWrapper(nationtranslation, nationtranslation=nationtranslation.to_api())
+        else:
+            offset = (int(p) - 1)*int(limit)
+            nationtranslation = query.offset(offset).limit(limit).all()
+            n = ResultWrapper(nationtranslation, nationtranslation=[v.to_api() for v in nationtranslation],count=query.count())
     db.close()
     return n
 
@@ -248,7 +271,7 @@ def player(id=None, p=0, limit=20, admin=None):
             db.flush()
             db.refresh(player)
         if position is not None:
-            player.player2position[:] = [PlayerPosition(**{'player':id,'position':p}) for p in position]
+            player.player2position[:] = [PlayerPosition(**{'player_id':id,'position_id':p}) for p in position]
         db.commit()
         n = ResultWrapper(player, player=player.to_api(admin))
     else:
@@ -307,7 +330,7 @@ def clubsquad(club=None, p=0, limit=20):
 #         team = club.team.one()
 #         player = [v.player for v in team.team2player]
         db = DB_Session()
-        player = db.query(Player).join(ClubTeamPlayer, Player.id == ClubTeamPlayer.player_id).join(ClubTeam,ClubTeam.id == ClubTeamPlayer.team_id).filter(ClubTeam.club == int(club))
+        player = db.query(Player).join(ClubTeamPlayer, Player.id == ClubTeamPlayer.player_id).join(ClubTeam,ClubTeam.id == ClubTeamPlayer.team_id).filter(ClubTeam.club_id == int(club))
         n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n
@@ -343,7 +366,7 @@ def clubteam(id=None, p=0, limit=20,admin=None):
             db.flush()
             db.refresh(team)
         if player is not None:
-            team.team2player[:] = [ClubTeamPlayer(**{'team':id, 'player':p}) for p in player]
+            team.team2player[:] = [ClubTeamPlayer(**{'team_id':id, 'player_id':p}) for p in player]
         db.commit()
         n = ResultWrapper(team, team=team.to_api(admin))
     else:
@@ -428,7 +451,7 @@ def clubteam2player(id=None, p=0, limit=20):
 class PublicApi:
     methods = {"continent_all":continent_all,
                "continent":continent,
-               "nation_all":nation_all,
+               "nationtranslation":nationtranslation,
                "nation":nation,
                "position":position,
                "player":player,

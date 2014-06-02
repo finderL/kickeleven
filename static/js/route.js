@@ -11,7 +11,6 @@ define(function(require) {
 		container : taurus.$body.find('>.container-fluid'),
 		initialize : function() {
 			this.routeMethods = {};
-			console.log(this.routes);
 		},
 		routes : $.extend(patterns('admin',site.get_urls()),{
 			"" : "home", // #home
@@ -40,11 +39,16 @@ define(function(require) {
 				callback = this[name];
 			var router = this;
 			Backbone.history.route(route, function(fragment) {
+				console.log(name);
 				var args = router._extractParameters(route, fragment);
 				callback && callback.apply(router, args);
 				router.trigger.apply(router, ['route:' + name].concat(args));
 				router.trigger('route', name, args);
 				Backbone.history.trigger('route', router, name, args);
+				var active = $('[href="#'+name+'"]');
+				if(active.length){
+					active.parent().addClass('active').siblings().removeClass('active');
+				}
 				//router.currentPage && router.currentPage.remove();
 				//router.currentPage = null;
 			});

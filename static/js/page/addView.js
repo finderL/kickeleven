@@ -19,7 +19,7 @@ define(function(require){
 					href:'/admin/'
 				},{
 					text:this.model_name,
-					href:'/admin/'+this.model_name.toLowerCase()+'/'
+					href:'/admin/#'+this.model_name.toLowerCase()+'/'
 				},{
 					text:i18n.__('Add'),
 					active:true
@@ -37,7 +37,7 @@ define(function(require){
 							console.log(this.form.getValues());
 							me.model.save(this.form.getValues(),{
 								success:function(){
-									Backbone.history.navigate("admin/"+me.model_name.toLowerCase() + '/', true);
+									Backbone.history.navigate(me.model_name.toLowerCase() + '/', true);
 								}
 							});
 						}

@@ -10,12 +10,7 @@ $def with(form)
 
 		<!-- Le styles -->
 		<link href="/static/css/bootstrap.css" type="text/css" rel="stylesheet">
-		<link href="/static/css/panel.css" type="text/css" rel="stylesheet">
-		<link href="/static/css/table.css" type="text/css" rel="stylesheet">
-		<link href="/static/css/file.css" type="text/css" rel="stylesheet">
-		<link href="/static/css/datepicker.css" type="text/css" rel="stylesheet">
-		<link href="/static/css/glyphicons.css" type="text/css" rel="stylesheet">
-		<link href="/static/css/style.css" type="text/css" rel="stylesheet">
+		<link href="/static/css/signin.css" rel="stylesheet">
 
 		<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 		<!--[if lt IE 9]>
@@ -39,10 +34,17 @@ $def with(form)
 
 	<body>
 		<div class="container">
-			<form role="form" method="POST">
-				$:form.render()
-			  	<button type="submit" class="btn btn-default">Submit</button>
-			</form>
+			<div class="container">
+				<div class="form-signin panel panel-default">
+					<div class="panel-heading">Create New Account</div>
+					<div class="panel-body">
+						<form role="form" method="POST">
+							$:form.render()
+						  	<button type="submit" class="btn btn-default">Submit</button>
+						</form>
+					</div>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

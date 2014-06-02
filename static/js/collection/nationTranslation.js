@@ -3,9 +3,9 @@
  */
 define(function(require) {
 	require('backbone');
-	var Nation = require('../model/nation');
+	var NationTranslation = require('../model/nationTranslation');
 	return Backbone.Paginator.requestPager.extend({
-		model : Nation,
+		model : NationTranslation,
 		sync: function ( method, model, options ) {
 			var self = this,queryAttributes = {};
 			self.setDefaults();
@@ -94,7 +94,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api?method=nation'
+			url : '/api?method=nationtranslation'
 		},
 		paginator_ui : {
 			// the lowest page index your API allows to be accessed
@@ -124,7 +124,7 @@ define(function(require) {
 		parse : function(resp) {
 			var results;
 			if(resp.rv){
-				results = resp.rv.nation;
+				results = resp.rv.nationtranslation;
 				if(resp.rv.count)
 					this.totalRecords = resp.rv.count;
 			} else {

@@ -12,6 +12,14 @@ define(function(require){
 		POSITION:['Striker','Attack Midfielder','Midfielder','Defensive Midfielder','Wing Back','Defender','Sweeper','Goalkeeper']
 	});
 	taurus.itemPathPrefix = '';
+	$(document).on('click','.btn-logout',function(){
+		var form = document.createElement('form');
+		form.action = '/logout/';
+		form.method = 'POST';
+		document.body.appendChild(form);
+		form.submit();
+		return false;
+	});
 	new Router;
 	Backbone.history.start();
 });

@@ -12,6 +12,7 @@ define(function(require, exports) {
 	Table = require('../taurus/panel/table'),
 	Continent = require('../collection/continent'),
 	Nation = require('../collection/nation'),
+	NationTranslation = require('../collection/nationTranslation'),
 	NationTeam = require('../collection/nationTeam'),
 	Position = require('../collection/position'),
 	Club = require('../collection/club'),
@@ -263,6 +264,84 @@ define(function(require, exports) {
 				this.setValue(result.filename);
 			},
 			fieldLabel : i18n.__('Small Flag')
+		},{
+			cls:FileProprty,
+			name : 'logo',
+			request:{
+				endpoint:'/api/upload'
+			},
+			onComplete:function(id, name, result, xhr){
+				this.setValue(result.filename);
+			},
+			fieldLabel : i18n.__('Logo')
+		}]
+	});
+	var NationTranslationAdmin = ModelAdmin.extend({
+		model_name : 'NationTranslation',
+		collection : NationTranslation,
+		columns : [{
+			text : i18n.__('Language Code'),
+			flex : 1,
+			sortable : false,
+			dataIndex : 'language_code'
+		},{
+			text : i18n.__('Full Name'),
+			flex : 1,
+			sortable : false,
+			renderer : function(value,data) {
+				return '<a data-item-id="'+data.id+'" href="/admin/#nationtranslation/'+data.id+'/">'+value+'</a>';;
+			},
+			dataIndex : 'full_name'
+		},{
+			text : i18n.__('Short Name'),
+			flex : 1,
+			sortable : false,
+			dataIndex : 'short_name'
+		},{
+			text:i18n.__('Capital City'),
+			flex : 1,
+			sortable : false,
+			dataIndex : 'capital_city'
+		}],
+		fields:[{
+			cls:SelectProprty,
+			name : 'nation_id',
+			displayField : 'full_name',
+			valueField: "id",
+			collection: Nation,
+			fieldLabel : i18n.__('Nation'),
+			emptyText:i18n.__('Nation'),
+			allowBlank:false
+		},{
+			cls:TextProperty,
+			name : 'language_code',
+			fieldLabel : i18n.__('Language Code'),
+			emptyText:i18n.__('Language Code'),
+			allowBlank:false
+		},{
+			cls:TextProperty,
+			name : 'full_name',
+			fieldLabel : i18n.__('Full Name'),
+			emptyText:i18n.__('Full Name'),
+			allowBlank:false
+		},{
+			cls:TextProperty,
+			name : 'short_name',
+			fieldLabel : i18n.__('Short Name'),
+			emptyText:i18n.__('Short Name'),
+			allowBlank:false
+		},{
+			cls:TextProperty,
+			name : 'nationality',
+			fieldLabel : i18n.__('Nationality'),
+			emptyText:i18n.__('Nationality'),
+			allowBlank:false
+		},{
+			cls:TextProperty,
+			name : 'capital_city',
+			fieldLabel : i18n.__('Capital City'),
+			emptyText:i18n.__('Capital City'),
+			allowBlank:false
 		}]
 	});
 	var PositionAdmin = ModelAdmin.extend({
@@ -651,8 +730,8 @@ define(function(require, exports) {
 		}],
 		fields:[{
 			cls:SelectProprty,
-			name : 'club',
-			id:'club',
+			name : 'club_id',
+			id:'club_id',
 			displayField : 'club_name',
 			valueField:"id",
 			collection:Club,
@@ -697,8 +776,8 @@ define(function(require, exports) {
 		}],
 		fields:[{
 			cls:SelectProprty,
-			name : 'nation',
-			id:'nation',
+			name : 'nation_id',
+			id:'nation_id',
 			displayField : 'full_name',
 			valueField:"id",
 			collection:Nation,
@@ -773,6 +852,7 @@ define(function(require, exports) {
 	var site = new AdminSite;
 	taurus.klass('k11.admin.continent',new ContinentAdmin);
 	taurus.klass('k11.admin.nation',new NationAdmin);
+	taurus.klass('k11.admin.nationtranslation',new NationTranslationAdmin);
 	taurus.klass('k11.admin.position',new PositionAdmin);
 	taurus.klass('k11.admin.player',new PlayerAdmin);
 	taurus.klass('k11.admin.playertranslation',new PlayerTranslationAdmin);

@@ -22,7 +22,8 @@ urls = (
     '/register/', 'RegisterPage',
     '/activate/(\w+)/','Activate',
     '/admin/', 'Admin',
-    '/admin/login/', 'Login',
+    '/login/', 'Login',
+    '/logout/', 'Logout',
     '/(.*)', 'hello'
 )
 app = web.application(urls, locals())

@@ -1,20 +1,6 @@
 /**
  * @author nttdocomo
  */
-
-/*var TIME_STAMP = '?t=' + new Date().getTime();
-
-seajs.on('fetch', function(data) {
-	if (data.uri) {
-		data.requestUri = data.uri + TIME_STAMP;
-	}
-});
-
-seajs.on('define', function(data) {
-	if (data.uri) {
-		data.uri = data.uri.replace(TIME_STAMP, '');
-	}
-});*/
 seajs.config({
 	plugins : ['shim', 'text'],
 	base : "./static/js/",
@@ -27,7 +13,7 @@ seajs.config({
 	map : [['http://www.kickeleven.com/static/js/taurus/', 'http://nttdocomo.github.io/taurus/src/']],
 	preload : ['jquery', 'underscore', 'modernizr', 'plugin-text'],
 	vars : {
-		'locale' : 'zh-cn'
+		'locale' : (navigator.language || navigator.browserLanguage).toLowerCase()
 	},
 });
 

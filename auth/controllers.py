@@ -10,11 +10,11 @@ from auth.models import User,RegistrationProfile
 from db.models import DB_Session
 from auth.forms import RegistrationForm
 
-class AuthBase:
+class AuthBase(object):
     def __init__(self):
         session = web.config.session
         if (not hasattr(session, 'login')) or session.login == 0:
-            raise web.seeother('/admin/login/',absolute=True)
+            raise web.seeother('/login/')
 
 class Admin(AuthBase):
     def GET(self):
@@ -38,7 +38,17 @@ class Login:
             session.privilege=user.privilege
             raise web.seeother('/admin/')
         else:
-            raise web.seeother('/admin/login/')
+            raise web.seeother('/login/')
+
+class Logout:
+    def GET(self):
+        web.seeother('/')
+
+    def POST(self):
+        session = web.config.session
+        session.login = 0
+        session.kill()
+        raise web.seeother('/admin/')
 
 class RegisterPage:
     def GET(self):

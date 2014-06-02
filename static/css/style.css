@@ -7,14 +7,10 @@ html {
 .flex-height {
 	height: 100%;
 }
-.flex-height.panel {
-	padding-bottom: 41px;
-}
 .flex-height.panel.has-header {
 	padding-top: 38px;
-	padding-bottom: 41px;
 }
-.flex-height.panel.grid {
+.flex-height.panel.grid.has-pager {
 	padding-bottom: 42px;
 }
 .flex-height > .panel-heading {

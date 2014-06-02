@@ -112,13 +112,14 @@ class Nation(TranslationModel):
     continent = Column(TINYINT(3), ForeignKey('continent.id'))
     normal_flag = Column(CHAR(45))
     small_flag = Column(CHAR(45))
+    logo = Column(CHAR(45))
     player = relationship("Player", backref="nationality")
-    translation = relationship("NationTranslation", backref="nation_ref", lazy="dynamic")
+    translation = relationship("NationTranslation", backref="nation", lazy="dynamic")
     club = relationship("Club", backref="nation", lazy="dynamic")
-    team = relationship('NationTeam', backref="nation_ref", lazy="dynamic")
+    team = relationship('NationTeam', backref="nation", lazy="dynamic")
 
     def get_tranlation(self):
-        translation = self.translation.filter(NationTranslation.nation == self.id).filter(NationTranslation.language_code==self.get_language())
+        translation = self.translation.filter(NationTranslation.nation_id == self.id).filter(NationTranslation.language_code==self.get_language())
         return super(Nation, self).get_tranlation(translation)
 
 class NationTranslation(Translation):
@@ -129,7 +130,7 @@ class NationTranslation(Translation):
     short_name = Column(String(30)) # or Column(String(30))
     capital_city = Column(String(60))
     nationality = Column(String(30))
-    nation = Column(TINYINT(3), ForeignKey('nation.id'))
+    nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
 
 class Club(TranslationModel):
     __tablename__ = 'club'
@@ -144,7 +145,7 @@ class Club(TranslationModel):
     home_kit = Column(CHAR(45))
     away_kit = Column(CHAR(45))
     third_kit = Column(CHAR(45))
-    team = relationship('ClubTeam', backref="club_ref", lazy="dynamic")
+    team = relationship('ClubTeam', backref="club", lazy="dynamic")
     translation = relationship('ClubTranslation', backref="club_ref", lazy="dynamic")
     
     def to_api(self, admin):
@@ -179,13 +180,13 @@ class Team(ApiModel):
 class ClubTeam(Team):
     __tablename__ = 'clubteam'
 
-    club = Column(Integer, ForeignKey('club.id')) # or Column(String(30))
-    team2player = relationship("ClubTeamPlayer", backref="team_ref", cascade='all, delete-orphan')
+    club_id = Column(Integer, ForeignKey('club.id')) # or Column(String(30))
+    team2player = relationship("ClubTeamPlayer", backref="team", cascade='all, delete-orphan')
     
     def to_api(self,admin):
         db = DB_Session()
         o = super(ClubTeam, self).to_api()
-        club = self.club_ref
+        club = self.club
         try:
             o['club'] = club.to_api(admin)
         except Exception,e:
@@ -196,13 +197,13 @@ class ClubTeam(Team):
 class NationTeam(Team):
     __tablename__ = 'nationteam'
 
-    nation = Column(Integer, ForeignKey('nation.id')) # or Column(String(30))
+    nation_id = Column(Integer, ForeignKey('nation.id')) # or Column(String(30))
     team2player = relationship("NationTeamPlayer", backref="team_ref", cascade='all, delete-orphan')
     
     def to_api(self,admin):
         db = DB_Session()
         o = super(NationTeam, self).to_api()
-        nation = self.nation_ref
+        nation = self.nation
         try:
             o['nation'] = nation.to_api(admin)
         except Exception,e:
