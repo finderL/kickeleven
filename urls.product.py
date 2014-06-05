@@ -20,6 +20,7 @@ web.config.smtp_port = 587
 web.config.smtp_username = 'nttdocomo.ouyi@gmail.com'
 web.config.smtp_password = '709394803610'
 web.config.smtp_starttls = True
+web.config.debug = False
 
 urls = (
     '/api', app_api,
@@ -34,8 +35,6 @@ app = web.application(urls, locals())
 
 if web.config.get('session') is None:
     web.config.session = session = Session(app, SQLAStore())
-else:
-    session = web.config.session
 
 if __name__ == "__main__":
     #关掉stderr的输出位置
