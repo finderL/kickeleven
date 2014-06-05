@@ -479,7 +479,10 @@ define(function(require, exports) {
 		},{
 			cls:SelectProprty,
 			name : 'position',
-			collection:Position,
+			collection:Position.extend({
+				server_api : {
+				}
+			}),
 			displayField : 'position_name',
 			valueField:"id",
 			fieldLabel : i18n.__('Position'),
@@ -793,7 +796,9 @@ define(function(require, exports) {
 		},{
 			cls:SelectProprty,
 			name : 'player',
-			collection:Player,
+			collection:Player.extend({
+				server_api : {}
+			}),
 			displayField : 'short_name',
 			valueField:"id",
 			multiSelect:true,

@@ -16,6 +16,7 @@ define(function(require){
 		var form = document.createElement('form');
 		form.action = '/logout/';
 		form.method = 'POST';
+		form.innerHTML = '<input type="text" value="'+location.pathname + location.hash+'" name="redirect" />';
 		document.body.appendChild(form);
 		form.submit();
 		return false;

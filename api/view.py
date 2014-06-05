@@ -132,14 +132,9 @@ def nationtranslation(id=None, p=0, limit=20):
     db.close()
     return n
 
-def continent_all():
-    entries = db.select('continent')
-    return {'continents' : entries.list()}
-#     return ResultWrapper(entries, entries=entries.list())
-
 def continent(id=None, p=0, limit=20):
-    session = DB_Session()
-    query = session.query(Continent)
+    db = DB_Session()
+    query = db.query(Continent)
     method = web.ctx.method
     if method in ('POST','PUT','PATCH'):
         i=web.data()
@@ -150,17 +145,17 @@ def continent(id=None, p=0, limit=20):
             n = ResultWrapper(continent, continent=continent.to_api())
         else:
             continent = Continent(**i)
-            session.add(continent)
-            session.flush()
-            session.refresh(continent)
-            session.commit()
+            db.add(continent)
+            db.flush()
+            db.refresh(continent)
+            db.commit()
             n = ResultWrapper(continent, continent=continent.to_api())
     if method == 'DELETE':
         continent = query.get(int(id))
-        session.delete(continent)
-        session.commit()
+        db.delete(continent)
+        db.commit()
         n = ResultWrapper(continent, continent=continent.to_api())
-    else:
+    if method == 'GET':
         if id:
             continent = query.get(int(id))
             n = ResultWrapper(continent, continent=continent.to_api())
@@ -169,10 +164,10 @@ def continent(id=None, p=0, limit=20):
             offset = (int(p) - 1)*limit
             continent = query.offset(offset).limit(limit).all()
             n = ResultWrapper(continent, continent=[v.to_api() for v in continent],count=query.count())
-    session.close()
+    db.close()
     return n
 
-def position(id=None, p=0, limit=20, admin=None):
+def position(id=None, p=None, limit=None, admin=None):
     db = DB_Session()
     query = db.query(Position)
     if web.ctx.method in ('POST','PUT','PATCH'):
@@ -193,9 +188,12 @@ def position(id=None, p=0, limit=20, admin=None):
             position = query.get(int(id))
             n = ResultWrapper(position, position=position.to_api())
         else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
-            position = query.offset(offset).limit(limit).all()
+            if limit is not None:
+                limit = int(limit)
+                offset = (int(p) - 1)*limit
+                position = query.offset(offset).limit(limit).all()
+            else:
+                position = query.all()
             n = ResultWrapper(position, position=[v.to_api() for v in position],count=query.count())
 #             n = {'player' : list,'count':results[0].players}
     db.close()
@@ -252,7 +250,7 @@ def clubtranslation(id=None, p=0, limit=20):
     db.close()
     return n
 
-def player(id=None, p=0, limit=20, admin=None):
+def player(id=None, p=None, limit=None, admin=None):
     db = DB_Session()
     query = db.query(Player)
     method = web.ctx.method
@@ -282,10 +280,13 @@ def player(id=None, p=0, limit=20, admin=None):
             player['position'] = [v.to_api() for v in position]
             n = ResultWrapper(player, player=player)
         else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
             count=query.count()
-            player = query.offset(offset).limit(limit).all()
+            if limit is not None:
+                limit = int(limit)
+                offset = (int(p) - 1)*limit
+                player = query.offset(offset).limit(limit).all()
+            else:
+                player = query.all()
             n = ResultWrapper(player, player=[v.to_api(admin) for v in player],count=count)
 #             n = {'player' : list,'count':results[0].players}
     db.close()
@@ -335,7 +336,7 @@ def clubsquad(club=None, p=0, limit=20):
         db.close()
     return n
 
-def nationsquad(nation=None, p=0, limit=20):
+def nationsquad(nation=None, p=None, limit=None):
     if nation:
 #         db = DB_Session()
 #         query = db.query(Nation)
@@ -343,7 +344,7 @@ def nationsquad(nation=None, p=0, limit=20):
 #         team = nation.team.one()
 #         player = [v.player for v in team.team2player]
         db = DB_Session()
-        player = db.query(Player).join(NationTeamPlayer, Player.id == NationTeamPlayer.player_id).join(NationTeam,NationTeam.id == NationTeamPlayer.team_id).filter(NationTeam.nation == int(nation))
+        player = db.query(Player).join(NationTeamPlayer, Player.id == NationTeamPlayer.player_id).join(NationTeam,NationTeam.id == NationTeamPlayer.team_id).filter(NationTeam.nation_id == int(nation))
         n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n
@@ -402,7 +403,7 @@ def nationteam(id=None, p=0, limit=20,admin=None):
             db.flush()
             db.refresh(team)
         if player is not None:
-            team.team2player[:] = [NationTeamPlayer(**{'team':id, 'player':p}) for p in player]
+            team.team2player[:] = [NationTeamPlayer(**{'team_id':id, 'player_id':p}) for p in player]
         db.commit()
         n = ResultWrapper(team, team=team.to_api(admin))
     else:
@@ -449,8 +450,7 @@ def clubteam2player(id=None, p=0, limit=20):
     return n
 
 class PublicApi:
-    methods = {"continent_all":continent_all,
-               "continent":continent,
+    methods = {"continent":continent,
                "nationtranslation":nationtranslation,
                "nation":nation,
                "position":position,

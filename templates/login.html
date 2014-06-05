@@ -1,3 +1,4 @@
+$def with(form)
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -28,7 +29,7 @@
 
 	<body>
 		<div class="container">
-			<div class="form-signin panel panel-default">
+			<!--<div class="form-signin panel panel-default">
 				<div class="panel-heading">Please sign in</div>
 				<div class="panel-body">
 					<form class="" role="form" method="POST" action="/login/">
@@ -45,7 +46,7 @@
 							Sign in
 						</button>
 					</form>
-				</div>
+				</div>-->
 			</div>
 		</div>
 		<!-- /container -->
@@ -53,5 +54,10 @@
 		<!-- Bootstrap core JavaScript
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript" src="/static/js/sea-debug.js"></script>
+		<script type="text/javascript" src="/static/js/config.js"></script>
+		<script type="text/javascript">
+			seajs.use("/static/js/login");
+		</script>
 	</body>
 </html>

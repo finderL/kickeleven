@@ -8,7 +8,8 @@ Created on 2014-4-11
 import web
 from web import utils, net
 from web import form
-from models import RegistrationProfile
+from db.models import DB_Session
+from models import User, RegistrationProfile
 # from django.forms import ValidationError
 
 vpass = form.regexp(r".{3,20}$", 'must be between 3 and 20 characters')
@@ -39,6 +40,27 @@ class InputPatch(form.Input):
         return '<input %s/>' % attrs
 
 form.Input = InputPatch
+
+class LoginForm(BaseForm):
+    def __init__(self, *inputs, **kw):
+        super(LoginForm, self).__init__(*(form.Textbox("email", description="Email", class_='form-control'),
+    form.Password("password", vpass, description="Password", class_='form-control')))
+
+    def validates(self, source=None, _validate=True, **kw):
+        source = source or kw or web.input()
+        out = super(LoginForm, self).validates(source=source, _validate=_validate, **kw)
+        db = DB_Session()
+        query = db.query(User)
+        user = query.filter(User.email == source.email).one()
+        if user and user.validate_password(source.password):
+            session = web.config.session
+            session.login=1  
+            session.privilege=user.privilege
+            out = True
+        else:
+            out = False
+        db.close()
+        return out
 
 class RegistrationForm(BaseForm):
     def __init__(self, *inputs, **kw):

@@ -64,6 +64,8 @@ class User(BaseModel):
 
 class RegistrationProfile(BaseModel):
     __tablename__ = 'registrationprofile'
+    
+    ACTIVATED = u"ALREADY_ACTIVATED"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -110,10 +112,11 @@ class RegistrationProfile(BaseModel):
                 return False
             if not profile.activation_key_expired():
                 user = profile.user
-                user.is_active = True
-                user.put()
+                user.is_active = 1
                 profile.activation_key = RegistrationProfile.ACTIVATED
-                profile.put()
+                db.flush()
+                db.commit()
+                db.close()
                 #user_activated.send(sender=self.model, user=user)
                 return user
         return False
@@ -128,6 +131,7 @@ class RegistrationProfile(BaseModel):
         db.flush()
         db.refresh(new_user)
         db.commit()
+        db.close()
         
         registration_profile = cls.create_profile(new_user)
         if send_email:
@@ -149,7 +153,6 @@ class RegistrationProfile(BaseModel):
 #                                          'site': current_site })
             
             web.sendmail(settings.DEFAULT_FROM_EMAIL, new_user.email,subject, message)
-        db.close()
         return new_user
     
     @classmethod

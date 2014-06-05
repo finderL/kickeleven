@@ -9,7 +9,8 @@ import web
 
 class hello:
     def GET(self, name):
-        render = web.template.render('templates')
+        session = web.config.session
+        render = web.template.render('templates', globals={'login': hasattr(session, 'login') and session.login})
         if not name:
             name = 'World'
         return render.index(name)

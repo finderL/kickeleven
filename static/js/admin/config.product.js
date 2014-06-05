@@ -16,6 +16,3 @@ seajs.config({
 		'locale' : (navigator.language || navigator.browserLanguage).toLowerCase()
 	},
 });
-
-// 加载入口模块
-seajs.use("../static/js/admin/main");

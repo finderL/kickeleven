@@ -50,19 +50,6 @@ define(function(require){
 					},
 					dataIndex : 'full_name'
 				}, {
-					text : i18n.__('Nation'),
-					sortable : false,
-					width:200,
-					renderer : function(value) {
-						var result = [];
-						if(value){
-							return value.short_name;
-						} else {
-							return '-';
-						}
-					},
-					dataIndex : 'nation'
-				}, {
 					text : i18n.__('Height'),
 					sortable : false,
 					width:100,
@@ -85,8 +72,7 @@ define(function(require){
 				renderTo:me.$el.find('.col-lg-9').empty(),
 				onRefresh:function(){
 					me.collection.fetch();
-				},
-				pager:true
+				}
 			});
 			//me.collection.length || me.collection.fetch();
 		},

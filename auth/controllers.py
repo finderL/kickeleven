@@ -5,10 +5,9 @@ Created on 2014-1-23
 
 @author: nttdocomo
 '''
-import web
-from auth.models import User,RegistrationProfile
-from db.models import DB_Session
-from auth.forms import RegistrationForm
+import web, json
+from auth.models import RegistrationProfile
+from auth.forms import RegistrationForm,LoginForm
 
 class AuthBase(object):
     def __init__(self):
@@ -24,31 +23,32 @@ class Admin(AuthBase):
         
 class Login:
     def GET(self):
+        f = LoginForm()
         render = web.template.render('templates')
-        return render.login()
+        return render.login(f)
     def POST(self):
-        session = web.config.session
-        input = web.input()
-        email, password = input.email, input.password
-        db = DB_Session()
-        query = db.query(User)
-        user = query.filter(User.email == email).one()
-        if user and user.validate_password(password):  
-            session.login=1  
-            session.privilege=user.privilege
-            raise web.seeother('/admin/')
+        f = LoginForm()
+        if not f.validates():
+            render = web.template.render('templates')
+            return render.login(f)
         else:
-            raise web.seeother('/login/')
+            web.header('Content-Type', 'application/json')
+            return json.dumps({'success':True})
+#             raise web.seeother('/admin/')
 
 class Logout:
     def GET(self):
         web.seeother('/')
 
     def POST(self):
+        input = web.input()
+        redirect = '/login/'
         session = web.config.session
         session.login = 0
         session.kill()
-        raise web.seeother('/admin/')
+        if hasattr(input, 'redirect'):
+            redirect = input.redirect
+        raise web.seeother(redirect)
 
 class RegisterPage:
     def GET(self):
@@ -63,10 +63,16 @@ class RegisterPage:
         else:
             domain_override = web.ctx.host
             new_user = f.save(domain_override)
-            render = web.template.render('templates')
-            return render.register_success(new_user)
+#             render = web.template.render('templates')
+#             web.header('Content-Type', 'text/html')
+#             return render.register_success()
+            web.header('Content-Type', 'application/json')
+            return json.dumps({'success':True})
 
 class Activate:
     def GET(self,activation_key):
         activation_key = activation_key.lower() # Normalize before trying anything with it.
         account = RegistrationProfile.activate_user(activation_key)
+        render = web.template.render('templates')
+        web.header('Content-Type', 'text/html')
+        return render.activate()
