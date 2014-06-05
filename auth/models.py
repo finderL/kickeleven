@@ -43,6 +43,7 @@ SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 class User(BaseModel):
     __tablename__ = 'user'
+    keep_existing=True
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     date_joined = Column(DateTime, nullable=False, default=datetime.datetime.now)
