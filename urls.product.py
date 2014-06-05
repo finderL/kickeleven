@@ -5,11 +5,15 @@ Created on 2014-1-23
 
 @author: nttdocomo
 '''
-import web
+import web, os
 from auth.controllers import *
 from soccer.controllers import *
 from api.urls import app_api
 from sessions.models import Session, SQLAStore
+
+home='' 
+os.environ["SCRIPT_NAME"] = home 
+os.environ["REAL_SCRIPT_NAME"] = home
 
 web.config.smtp_server = 'smtp.gmail.com'
 web.config.smtp_port = 587
