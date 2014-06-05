@@ -13,7 +13,7 @@ class AuthBase(object):
     def __init__(self):
         session = web.config.session
         if (not hasattr(session, 'login')) or session.login == 0:
-            raise web.seeother('/login/')
+            raise web.seeother('/login/', absolute=True)
 
 class Admin(AuthBase):
     def GET(self):
