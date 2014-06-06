@@ -245,7 +245,7 @@ class Player(TranslationModel):
     full_name = Column(String(60)) # or Column(String(30))
     short_name = Column(String(30)) # or Column(String(30))
     date_of_birth = Column(Date())
-    nation = Column(TINYINT(3), ForeignKey('nation.id'))
+    nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
     height = Column(TINYINT(3))
     weight = Column(TINYINT(4))
     left_foot = Column(TINYINT(2))

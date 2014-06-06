@@ -32,7 +32,7 @@ define(function(require) {
 			} else if (key != null) {
 				(attrs = {})[key] = val;
 			}
-			Backbone.Model.prototype.save.apply(this,[attrs, options])
+			Backbone.Model.prototype.save.apply(this,[attrs, options]);
 		},
 		toJSON:function(){
 			var json = Backbone.Model.prototype.toJSON.apply(this,arguments);
@@ -45,21 +45,21 @@ define(function(require) {
 			return this.has('manage_club');
 		},
 		isPlayer:function(){
-			console.log(this)
+			console.log(this);
 		},
 		isGk:function(){
 			return _.find(this.get('position'),function(item){
-				return item.position == 7
-			})
+				return item.position == 7;
+			});
 		},
 		is_club_admin:function(club){
-			return _.contains(club.get('administrator'),this.id)
+			return _.contains(club.get('administrator'),this.id);
 		},
 		is_me:function(){
-			return this.id === taurus.currentPlayer.id
+			return this.id === taurus.currentPlayer.id;
 		},
 		is_founder:function(club){
-			return club.get('founder') && club.get('founder').id == this.id
+			return club.get('founder') && club.get('founder').id == this.id;
 		},
 		parse : function(resp) {
 			//if(resp.results && resp.results)
