@@ -51,13 +51,16 @@ class LoginForm(BaseForm):
         out = super(LoginForm, self).validates(source=source, _validate=_validate, **kw)
         db = DB_Session()
         query = db.query(User)
-        user = query.filter(User.email == source.email).one()
-        if user and user.validate_password(source.password):
-            session = web.config.session
-            session.login=1  
-            session.privilege=user.privilege
-            out = True
-        else:
+        try:
+            user = query.filter(User.email == source.email).one()
+            if user and user.validate_password(source.password):
+                session = web.config.session
+                session.login=1  
+                session.privilege=user.privilege
+                out = True
+            else:
+                out = False
+        except Exception, e:
             out = False
         db.close()
         return out

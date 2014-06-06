@@ -4,6 +4,9 @@
 define(function(require) {
 	require('../taurus/lang/date');
 	return taurus.klass('taurus.model.Player', Backbone.Model.extend({
+		defaults:{
+			avatar:'none.png'
+		},
 		/*relations: [{
 			type: Backbone.HasMany,
 			key: 'nationality',

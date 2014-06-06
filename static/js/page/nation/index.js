@@ -8,7 +8,7 @@ define(function(require){
 	Squad = require('../../collection/nationSquad'),
 	Nation = require('../../model/nation'),
 	Panel = require('../../panel/nationPanel'),
-	i18n = require('../../i18n/zh-cn');
+	i18n = require('../../i18n/{locale}');
 	return Base.extend({
 		events:{
 			'click .player-list a':'playerSummary'

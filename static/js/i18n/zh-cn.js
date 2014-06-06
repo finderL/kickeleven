@@ -70,6 +70,7 @@ define(function(require){
 			"Normal Flag":"普通国旗",
 			"Small Flag":"小国旗",
 			"Add" : "添加",
+			"Save":"保存",
 			"Cancel" : "取消",
 			"Update" : "更新",
 			"Club Name" : "俱乐部名称",
@@ -78,11 +79,19 @@ define(function(require){
 			"Year Founded" : "创立时间",
 			"yyyy-mm-dd" : "yy.mm.dd",
 			"Team Name":"球队名字",
+			"Age":"年龄",
 			"Language Code":"语言代码",
 			"Team Type":"球队类型",
 			"Club or Nation":"俱乐部或国家",
 			"Current work for %s" : "目前效力于 %s",
-			"Page %d of %d" : "%2$d页中的第%1$d页"
+			"Page %d of %d" : "%2$d页中的第%1$d页",
+			"Please sign in":"请登录",
+			"Login":"登录",
+			"Email":"邮箱",
+			"Password":"密码",
+			"Create New Account":"创建新帐号",
+			"Username":"用户名",
+			"Repeat password":"重复密码"
 		}]]
 	});
 });

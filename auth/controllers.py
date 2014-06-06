@@ -25,16 +25,19 @@ class Login:
     def GET(self):
         f = LoginForm()
         render = web.template.render('templates')
-        return render.login(f)
+        return render.login()
     def POST(self):
         f = LoginForm()
-        if not f.validates():
-            render = web.template.render('templates')
-            return render.login(f)
-        else:
-            web.header('Content-Type', 'application/json')
-            return json.dumps({'success':True})
-#             raise web.seeother('/admin/')
+        web.header('Content-Type', 'application/json')
+        try:
+            if not f.validates():
+                raise web.unauthorized('Your email or password is wrong')
+    #             return json.dumps({'success':False})
+            else:
+                return json.dumps({'success':True})
+    #             raise web.seeother('/admin/')
+        except web.HTTPError, e:
+            return json.dumps({'message':e.data})
 
 class Logout:
     def GET(self):
@@ -54,12 +57,12 @@ class RegisterPage:
     def GET(self):
         f = RegistrationForm()
         render = web.template.render('templates')
-        return render.register(f)
+        return render.register()
     def POST(self):
         f = RegistrationForm()
         if not f.validates():
             render = web.template.render('templates')
-            return render.register(f)
+            return render.register()
         else:
             domain_override = web.ctx.host
             new_user = f.save(domain_override)
