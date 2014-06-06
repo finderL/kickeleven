@@ -8,7 +8,7 @@ define(function(require){
 	return taurus.view('taurus.views.ClubMiniProfile',Base.extend({
 		/*tpl:['<div class="media"><span class="pull-left"><img data-src="holder.js/260x180" alt="260x180" style="width:112px; height:112px;" src="'+taurus.BLANK_IMAGE_URL+'"></span>',
 		'<div class="media-body"><ul class="table-ul"><%=list%></ul></div></div>'].join(''),*/
-		tpl:['<img data-src="holder.js/300x200" alt="..." src="/static/tmp/<%=logo%>/"><div class="caption"><img data-src="holder.js/300x200" alt="..." src="/static/tmp/<%=normal_flag%>/" width="72" height="44"></div>',
+		tpl:['<img data-src="holder.js/300x200" alt="..." src="/static/tmp/<%=logo%>"><div class="caption"><img data-src="holder.js/300x200" alt="..." src="/static/tmp/<%=normal_flag%>" width="72" height="44"></div>',
 		'<div class="row profile-items"><%_.each(info,function(item,name){%><div class="col-lg-12 profile-item"><%=_.i18n.__(name.replace(/(^[a-z]|_[a-z])/ig,function($1){return $1.toUpperCase().replace("_"," ")}))%><h4><%=item%></h4></div><%})%></div>'].join(''),
         className:'player-mini-profile thumbnail',
 		initialize:function(){
