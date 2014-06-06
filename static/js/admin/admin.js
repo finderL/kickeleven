@@ -55,7 +55,6 @@ define(function(require, exports) {
 			_.each(k11.admin,function(model_admin,key){
 				$.extend(urlpatterns,patterns(vsprintf('%s', [key.toLowerCase()]),model_admin.get_urls()));
 			});
-			console.log(urlpatterns);
 			return urlpatterns;
 		},
 		index:function(){
@@ -237,8 +236,8 @@ define(function(require, exports) {
 			allowBlank:false
 		},{
 			cls:SelectProprty,
-			name : 'continent',
-			collection:new Continent,
+			name : 'continent_id',
+			collection:Continent,
 			displayField : 'name',
 			valueField:"id",
 			fieldLabel : i18n.__('Continent'),

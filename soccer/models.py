@@ -109,7 +109,7 @@ class Nation(TranslationModel):
     short_name = Column(String(30)) # or Column(String(30))
     capital_city = Column(String(60))
     nationality = Column(String(30))
-    continent = Column(TINYINT(3), ForeignKey('continent.id'))
+    continent_id = Column(TINYINT(3), ForeignKey('continent.id'))
     normal_flag = Column(CHAR(45))
     small_flag = Column(CHAR(45))
     logo = Column(CHAR(45))
