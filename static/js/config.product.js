@@ -3,7 +3,7 @@
  */
 seajs.config({
 	plugins : ['shim', 'text'],
-	base : 'http://'+location.host+'/static/js/taurus/',
+	base : 'http://'+location.host+'/static/js/',
 	alias : {
 		"jquery" : "jquery-2.0.0.js",
 		"underscore" : "underscore.js",
