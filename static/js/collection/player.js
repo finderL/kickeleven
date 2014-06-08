@@ -44,6 +44,10 @@ define(function(require) {
 			},
 			limit:function(){
 				return this.perPage;
+			},
+			action:function(){
+				console.log(this.query);
+				return this.query ? 'search':0;
 			}
 		},
 		parse : function(resp) {
@@ -65,12 +69,6 @@ define(function(require) {
 		},
 		comparator :function(player){
 			return player.get("full_name");
-		},
-		search:function(){
-			this.fetch({
-				url:'/api?method=player.search',
-				data:arguments[0]
-			});
 		}
 	});
 });

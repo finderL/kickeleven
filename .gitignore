@@ -48,3 +48,4 @@ urls.py
 settings.py
 static/js/config.js
 static/js/admin/config.js
+templates/index.html

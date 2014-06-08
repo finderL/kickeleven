@@ -4,6 +4,10 @@
 define(function(require) {
 	require('backbone.paginator');
 	return Backbone.Paginator.requestPager.extend({
+		search:function(attrs){
+			this.query = attrs;
+			this.pager();
+		},
 		sync : function(method, model, options) {
 			var self = this,queryAttributes = {};
 			self.setDefaults();
@@ -14,6 +18,10 @@ define(function(require) {
 					value = _.bind(value, self);
 					value = value();
 				}
+				if(value)
+					queryAttributes[key] = value;
+			});
+			_.each(_.result(self, "query"), function(value, key){
 				if(value)
 					queryAttributes[key] = value;
 			});

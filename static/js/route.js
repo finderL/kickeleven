@@ -11,6 +11,11 @@ define(function(require) {
 		container : taurus.$body.find('>.container-fluid'),
 		initialize : function() {
 			this.routeMethods = {};
+			this.bind('all', this._trackPageview);
+		},
+		_trackPageview : function() {
+			var url = Backbone.history.getFragment();
+			return ga && ga('send', 'pageview', '/' + url);
 		},
 		routes : $.extend(patterns('admin',site.get_urls()),{
 			"" : "home", // #home

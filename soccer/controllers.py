@@ -11,6 +11,4 @@ class hello:
     def GET(self, name):
         session = web.config.session
         render = web.template.render('templates', globals={'login': hasattr(session, 'login') and session.login})
-        if not name:
-            name = 'World'
-        return render.index(name)
+        return render.index()

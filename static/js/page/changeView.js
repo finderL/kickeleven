@@ -26,7 +26,7 @@ define(function(require){
 				renderTo:this.$el.find('.col-lg-12').empty()
 			});
 			var me = this;
-			this.model.on('change',function(){
+			this.model.once('change',function(){
 				new Panel({
 					title:i18n.__('Update') + ' ' + me.model_name,
 					items:_.map(me.fields,function(field){

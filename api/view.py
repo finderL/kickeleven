@@ -7,9 +7,10 @@ Created on 2011-9-12
 '''
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
+from sqlalchemy.orm import class_mapper
 from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, parseAcceptLanguage
-from sessions.models import WebpySession
 from settings import TEMP_DIR
+from sqlalchemy.types import CHAR, String, Date, DateTime, Text, Integer
 
 class ExtendedEncoder(json.JSONEncoder):
 
@@ -250,7 +251,7 @@ def clubtranslation(id=None, p=0, limit=20):
     db.close()
     return n
 
-def player(id=None, p=None, limit=None, admin=None):
+def player(id=None, p=None, limit=None, admin=None, action=None, **kwargs):
     db = DB_Session()
     query = db.query(Player)
     method = web.ctx.method
@@ -280,13 +281,20 @@ def player(id=None, p=None, limit=None, admin=None):
             player['position'] = [v.to_api() for v in position]
             n = ResultWrapper(player, player=player)
         else:
-            count=query.count()
+            player = query
+            if action is not None:
+                for column in class_mapper(Player).columns:
+                    column_name = column.key
+                    if kwargs.has_key(column_name):
+                        sql_string = ''
+                        if isinstance(column.type, String):
+                            sql_string = ' like "%'+kwargs[column_name]+'%"'
+                        player = query.filter(column_name + sql_string)
+            count = player.count()
             if limit is not None:
                 limit = int(limit)
                 offset = (int(p) - 1)*limit
-                player = query.offset(offset).limit(limit).all()
-            else:
-                player = query.all()
+                player = player.offset(offset).limit(limit)
             n = ResultWrapper(player, player=[v.to_api(admin) for v in player],count=count)
 #             n = {'player' : list,'count':results[0].players}
     db.close()
@@ -344,7 +352,8 @@ def nationsquad(nation=None, p=None, limit=None):
 #         team = nation.team.one()
 #         player = [v.player for v in team.team2player]
         db = DB_Session()
-        player = db.query(Player).join(NationTeamPlayer, Player.id == NationTeamPlayer.player_id).join(NationTeam,NationTeam.id == NationTeamPlayer.team_id).filter(NationTeam.nation_id == int(nation))
+        query = db.query(Player)
+        player = query.join(NationTeamPlayer, Player.id == NationTeamPlayer.player_id).join(NationTeam,NationTeam.id == NationTeamPlayer.team_id).filter(NationTeam.nation_id == int(nation))
         n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n

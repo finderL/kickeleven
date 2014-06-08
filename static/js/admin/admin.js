@@ -87,6 +87,7 @@ define(function(require, exports) {
 				var collection = new me.collection();
 				collection.isAdmin = true;
 				new Page({
+					search_fields:me.search_fields,
 					title:me.model_name,
 					columns : me.columns,
 					events:me.events,
@@ -401,6 +402,7 @@ define(function(require, exports) {
 	var PlayerAdmin = ModelAdmin.extend({
 		model_name : 'Player',
 		collection : Player,
+		search_fields : ['full_name'],
 		columns : [{
 			text : i18n.__('Full Name'),
 			flex : 1,
