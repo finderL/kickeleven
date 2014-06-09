@@ -259,14 +259,14 @@ class Player(TranslationModel):
     }
     
     def to_api(self, admin):
-        session = DB_Session()
         o = super(Player, self).to_api(admin)
         nation = self.nationality
         try:
             o['nation'] = nation.to_api(admin)
         except Exception,e:
             o['nation'] = None
-        session.close()
+        if not o['avatar']:
+            del o['avatar']
         return o
 
     def get_tranlation(self):
