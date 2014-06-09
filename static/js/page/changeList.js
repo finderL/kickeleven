@@ -5,24 +5,30 @@ define(function(require){
 	var Base = require('./base'),
 	i18n = require('../i18n/zh-cn'),
 	Breadcrumbs = require('../breadcrumbs'),
-	SearchField = require('../taurus/form/field/searchfield'),
-	Table = require('../panel/liveSearchGridPanel');
+	LiveSearchGridPanel = require('../panel/liveSearchGridPanel'),
+	Table = require('../taurus/panel/table');
 	return Base.extend({
 		tpl:'<div class="col-lg-12 flex-height"><a class="btn btn-primary" href="/admin/#<%=model%>/add/">' + i18n.__("Add") + '</a></div>',
 		uiClass:'change-list',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
-			new Table({
+			var opts = {
 				uiClass:'flex-height',
 				title:this.title,
-				search_fields:this.search_fields,
 				columns : this.columns,
 				collection : this.collection,
 				renderTo:this.$el.find('.col-lg-12'),
 				operation:'prepend',
 				events:this.events,
 				pager:true
-			});
+			};
+			if(this.search_fields){
+				new LiveSearchGridPanel($.extend(opts,{
+					search_fields:this.search_fields,
+				}));
+			} else {
+				new Table(opts);
+			}
 			new Breadcrumbs({
 				breadcrumbs:[{
 					text:'Home',

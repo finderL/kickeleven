@@ -18,7 +18,6 @@ define(function(require){
 					me.collection.search(attr);
 				}
 			});
-			this.$el.addClass();
 		}
 	});
 });
