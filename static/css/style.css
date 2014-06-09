@@ -26,9 +26,6 @@ html {
 	padding-top: 37px;
 	height: 100%;
 }
-.flex-height .panel-body > div:first-child {
-	margin-top: -37px;
-}
 .flex-height .grid-body {
 	height: 100%;
 }
