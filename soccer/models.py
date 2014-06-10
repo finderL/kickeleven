@@ -288,3 +288,7 @@ class Position(ApiModel):
     position_name = Column(TINYINT(2)) # or Column(String(30))
     side = Column(TINYINT(1)) # or Column(String(30))
     score = Column(TINYINT(2))
+    
+    __mapper_args__ = {
+        "order_by":["position_name","side","score"]
+    }

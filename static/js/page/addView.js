@@ -16,7 +16,7 @@ define(function(require){
 			new Breadcrumbs({
 				breadcrumbs:[{
 					text:'Home',
-					href:'/admin/'
+					href:'/admin/#home/'
 				},{
 					text:this.model_name,
 					href:'/admin/#'+this.model_name.toLowerCase()+'/'
