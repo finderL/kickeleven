@@ -9,11 +9,10 @@ define(function(require){
 		className:'section section-small club-profile',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
-			var player = this.model.get('squad')
+			var player = this.model.get('squad');
 			this.listenTo(this.model, 'change:club_name', function(){
-				console.log(arguments);
-				this.$el.find('.section-header > h3').text(arguments[1] + '的阵容')
-			})
+				this.$el.find('.section-header > h3').text(arguments[1] + '的阵容');
+			});
 			//this.listenTo(player,'change',this.html)
 			player.fetch({
 				url:'/api?method=club.get.squad'
@@ -89,7 +88,7 @@ define(function(require){
 				height:300,
 				renderTo : this.$el.find('.panel-body')
 			});
-			this.initButtonGroup()
+			this.initButtonGroup();
 		},
 		delegateEvents:function(events){
 			events = {
@@ -97,69 +96,69 @@ define(function(require){
 				'click .js-delete-player':'deletePlayer',
 				'click input:checkbox':'onCheckBoxClick',
 				'click .js-join-club':'requestToJoinClub'
-			}
+			};
 			//必须是管理员才绑定管理员事件
 			if(taurus.currentPlayer.is_founder(this.model)){
 				$.extend(events,{
 					'click .js-add-admin':'addAdmin',
 					'click .js-delete-admin':'deleteAdmin'
-				})
+				});
 			}
-			Base.prototype.delegateEvents.call(this,events)
+			Base.prototype.delegateEvents.call(this,events);
 		},
 		quit:function(){
 			var player, seletedToDelete = this.squadTable.$el.find('.selected');
 			if(seletedToDelete.length){
 				player = $.map($.makeArray(this.squadTable.$el.find('.selected')),function(item,i){
-					return $(item).attr('data-item-id')
-				})
+					return $(item).attr('data-item-id');
+				});
 			}
 			if(this.model.get('player').contains(taurus.currentPlayer)){
-				this.model.remove(taurus.currentPlayer)
+				this.model.remove(taurus.currentPlayer);
 			}
 		},
 		deletePlayer:function(){
 			var player = $.map($.makeArray(this.squadTable.$el.find('.selected')),function(item,i){
 				return Backbone.Relational.store.find(taurus.model.Player,$(item).attr('data-item-id'));
-			})
-			this.model.remove(player)
+			});
+			this.model.remove(player);
 		},
 		onCheckBoxClick:function(e){
 			var $target = $(e.currentTarget),me=this;
 			if($target.is(':checked')){
-				$target.parents('tr').addClass('selected')
+				$target.parents('tr').addClass('selected');
 			} else {
-				$target.parents('tr').removeClass('selected')
+				$target.parents('tr').removeClass('selected');
 			}
 			var player = $.map($.makeArray(this.squadTable.$el.find('.selected')),function(item,i){
-				return $(item).attr('data-item-id')
-			})
+				return $(item).attr('data-item-id');
+			});
 			var id = $target.parents('tr').attr('data-item-id');
 			if(_.some(player,function(id){
-				return taurus.currentPlayer.id == id
+				return taurus.currentPlayer.id == id;
 			})){
 				this.$el.find('.js-admin-action').attr('disabled','disabled');
 				return true
 			} else{
-				this.$el.find('.js-admin-action').removeAttr('disabled')
+				this.$el.find('.js-admin-action').removeAttr('disabled');
 			}
 			if(_.some(player,function(id){
-				return _.contains(me.model.get('administrator'),parseInt(id))
+				return _.contains(me.model.get('administrator'),parseInt(id));
 			})){
 				if(!taurus.currentPlayer.is_founder(this.model)){
-					this.$el.find('.js-admin-action').attr('disabled','disabled')
+					this.$el.find('.js-admin-action').attr('disabled','disabled');
 				} else {
-					this.$el.find('.js-add-admin').attr('disabled','disabled')
+					this.$el.find('.js-add-admin').attr('disabled','disabled');
 				}
 			} else{
-				this.$el.find('.js-admin-action').removeAttr('disabled')
+				this.$el.find('.js-admin-action').removeAttr('disabled');
 			}
 			if(_.some(player,function(id){
-				return !_.contains(me.model.get('administrator'),parseInt(id))
+				return !_.contains(me.model.get('administrator'),parseInt(id));
 			})){
-				this.$el.find('.js-delete-admin').attr('disabled','disabled')
+				this.$el.find('.js-delete-admin').attr('disabled','disabled');
 			} else{
-				this.$el.find('.js-delete-admin').removeAttr('disabled')
+				this.$el.find('.js-delete-admin').removeAttr('disabled');
 			}
 		},
 		deleteAdmin:function(){
@@ -168,11 +167,11 @@ define(function(require){
 		addAdmin:function(){
 			var player = $.map($.makeArray(this.squadTable.$el.find('.selected')),function(item,i){
 				return Backbone.Relational.store.find(taurus.model.Player,$(item).attr('data-item-id'));
-			})
+			});
 			if(this.model.get('administrator').length + player.length > 3){
-				alert('最多只允许有3个管理员')
+				alert('最多只允许有3个管理员');
 			} else {
-				this.model.addAdmin(player)
+				this.model.addAdmin(player);
 			}
 		},
 		initButtonGroup:function(){
@@ -185,10 +184,10 @@ define(function(require){
 				}
 			}
 			if(taurus.currentPlayer.is_founder(this.model)){
-				buttonGroup += '<button class="btn btn-mini js-add-admin js-admin-action" title="最多可以设置3个管理员">设置管理员</button><button class="btn btn-mini js-delete-admin js-admin-action" title="最多可以设置3个管理员">移除管理员</button>'
+				buttonGroup += '<button class="btn btn-mini js-add-admin js-admin-action" title="最多可以设置3个管理员">设置管理员</button><button class="btn btn-mini js-delete-admin js-admin-action" title="最多可以设置3个管理员">移除管理员</button>';
 			}
 			if(taurus.currentPlayer.is_club_admin(this.model)){
-				buttonGroup += '<button class="btn btn-mini js-delete-player js-admin-action">删除球员</button>'
+				buttonGroup += '<button class="btn btn-mini js-delete-player js-admin-action">删除球员</button>';
 			}
 			buttonGroup += '</div>';
 			this.$el.find('.section-header').prepend(buttonGroup);
@@ -197,7 +196,7 @@ define(function(require){
 			return Base.prototype.html.call(this,{
 				'title':this.model.get('club_name') + '的阵容',
 				'content': ''
-			})
+			});
 		}
-	}))
-})
+	}));
+});

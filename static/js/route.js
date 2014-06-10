@@ -44,7 +44,6 @@ define(function(require) {
 				callback = this[name];
 			var router = this;
 			Backbone.history.route(route, function(fragment) {
-				console.log(name);
 				var args = router._extractParameters(route, fragment);
 				callback && callback.apply(router, args);
 				router.trigger.apply(router, ['route:' + name].concat(args));
@@ -119,8 +118,6 @@ define(function(require) {
 		},
 		overview : function(page, id) {
 			var id = Array.prototype.splice.call(arguments,1,1)
-			console.log(arguments)
-			console.log(id)
 			var me = this;
 			if(arguments.length == 1){
 				Array.prototype.push.call(arguments,"index")

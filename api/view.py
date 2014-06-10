@@ -8,7 +8,7 @@ Created on 2011-9-12
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
 from sqlalchemy.orm import class_mapper
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, NationTeam, NationTeamPlayer, Position, PlayerPosition, Club, ClubTranslation, ClubTeam, ClubTeamPlayer, parseAcceptLanguage
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Team, TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, parseAcceptLanguage
 from settings import TEMP_DIR
 from sqlalchemy.types import CHAR, String, Date, DateTime, Text, Integer
 
@@ -339,7 +339,7 @@ def clubsquad(club=None, p=0, limit=20):
 #         team = club.team.one()
 #         player = [v.player for v in team.team2player]
         db = DB_Session()
-        player = db.query(Player).join(ClubTeamPlayer, Player.id == ClubTeamPlayer.player_id).join(ClubTeam,ClubTeam.id == ClubTeamPlayer.team_id).filter(ClubTeam.club_id == int(club))
+        player = db.query(Player).join(TeamPlayer, Player.id == TeamPlayer.player_id).join(Team,Team.id == TeamPlayer.team_id).filter(Team.owner_id == int(club) and Team.type == 2)
         n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n
@@ -353,14 +353,14 @@ def nationsquad(nation=None, p=None, limit=None):
 #         player = [v.player for v in team.team2player]
         db = DB_Session()
         query = db.query(Player)
-        player = query.join(NationTeamPlayer, Player.id == NationTeamPlayer.player_id).join(NationTeam,NationTeam.id == NationTeamPlayer.team_id).filter(NationTeam.nation_id == int(nation))
+        player = query.join(TeamPlayer, Player.id == TeamPlayer.player_id).join(Team,Team.id == TeamPlayer.team_id).filter(Team.owner_id == int(nation) and Team.type == 1)
         n = ResultWrapper(player, player=[v.to_api(None) for v in player],count=player.count())
         db.close()
     return n
 
-def clubteam(id=None, p=0, limit=20,admin=None):
+def team(id=None, p=0, limit=20,admin=None):
     db = DB_Session()
-    query = db.query(ClubTeam)
+    query = db.query(Team)
     if web.ctx.method in ('POST','PUT','PATCH'):
         i=json.loads(web.data())
         player = None
@@ -371,54 +371,18 @@ def clubteam(id=None, p=0, limit=20,admin=None):
             for name,value in i.items():
                 setattr(team, name, value)
         else:
-            team = ClubTeam(**i)
+            team = Team(**i)
             db.add(team)
             db.flush()
             db.refresh(team)
         if player is not None:
-            team.team2player[:] = [ClubTeamPlayer(**{'team_id':id, 'player_id':p}) for p in player]
+            team.teamplayer[:] = [TeamPlayer(**{'team_id':id, 'player_id':p}) for p in player]
         db.commit()
         n = ResultWrapper(team, team=team.to_api(admin))
     else:
         if id:
             team = query.get(int(id))
-            player = [v.player for v in team.team2player]
-            team = team.to_api(admin)
-            team['player'] = [v.to_api(admin) for v in player]
-            n = ResultWrapper(team, team=team)
-        else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
-            team = query.offset(offset).limit(limit).all()
-            n = ResultWrapper(team, team=[v.to_api(admin) for v in team],count=query.count())
-    db.close()
-    return n
-
-def nationteam(id=None, p=0, limit=20,admin=None):
-    db = DB_Session()
-    query = db.query(NationTeam)
-    if web.ctx.method in ('POST','PUT','PATCH'):
-        i=json.loads(web.data())
-        player = None
-        if i.has_key('player'):
-            player = i.pop('player')
-        if web.ctx.method in ('PUT','PATCH'):
-            team = query.get(int(id))
-            for name,value in i.items():
-                setattr(team, name, value)
-        else:
-            team = NationTeam(**i)
-            db.add(team)
-            db.flush()
-            db.refresh(team)
-        if player is not None:
-            team.team2player[:] = [NationTeamPlayer(**{'team_id':id, 'player_id':p}) for p in player]
-        db.commit()
-        n = ResultWrapper(team, team=team.to_api(admin))
-    else:
-        if id:
-            team = query.get(int(id))
-            player = [v.player for v in team.team2player]
+            player = [v.player for v in team.teamplayer]
             team = team.to_api(admin)
             team['player'] = [v.to_api(admin) for v in player]
             n = ResultWrapper(team, team=team)
@@ -467,8 +431,7 @@ class PublicApi:
                "playertranslation":playertranslation,
                "club":club,
                "clubtranslation":clubtranslation,
-               "clubteam":clubteam,
-               "nationteam":nationteam,
+               "team":team,
                "clubsquad":clubsquad,
                "nationsquad":nationsquad,
                'clubteam2player':clubteam2player}

@@ -4,7 +4,7 @@
 define(function(require) {
 	var Base = require('../taurus/view/base');
 	var ON_EACH_SIDE = 3,ON_ENDS = 2,DOT = '.';
-	return taurus.view('taurus.views.Pagination', Base.extend({
+	return Base.extend({
 		//tpl:'<ul><li<% if (currentPage <= firstPage) { %> class="disabled"<%}%>><a href="#">Prev</a></li><% for(p=1;p<=totalPages;p++){%><li<% if (currentPage == p) { %> class="disabled"<% } %>><a href="#"><%= p %></a></li><%}%><li<% if (currentPage == totalPages) { %> class="disabled"<%}%>><a href="#">Next</a></li></ul>',
 		tpl:'<%=paginator_number%>',
 		tagName:'ul',
@@ -39,7 +39,6 @@ define(function(require) {
 		},
 		html:function(){
 			var info = this.collection.info();
-			console.log(info)
 			info.paginator_number='';
 			info.currentPage = info.currentPage || 0
 			if (!info.totalPages || info.totalPages <= 10){
@@ -81,5 +80,5 @@ define(function(require) {
 			})
 			return Base.prototype.html.apply(this,[info])
 		}
-	}))
-})
+	});
+});

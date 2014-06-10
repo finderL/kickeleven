@@ -44,9 +44,6 @@ define(function(require) {
 		isManager:function(){
 			return this.has('manage_club');
 		},
-		isPlayer:function(){
-			console.log(this);
-		},
 		isGk:function(){
 			return _.find(this.get('position'),function(item){
 				return item.position == 7;

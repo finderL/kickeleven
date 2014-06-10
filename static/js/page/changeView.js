@@ -31,7 +31,8 @@ define(function(require){
 					title:i18n.__('Update') + ' ' + me.model_name,
 					items:_.map(me.fields,function(field){
 						return $.extend(field,{
-							value:me.model.get(field.name)
+							value:me.model.get(field.name),
+							model:me.model
 						});
 					}),
 					renderTo:me.$el.find('.col-lg-12'),

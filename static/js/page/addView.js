@@ -34,7 +34,6 @@ define(function(require){
 					text:i18n.__('Add'),
 					handler:function(){
 						if(this.form.isValid()){
-							console.log(this.form.getValues());
 							me.model.save(this.form.getValues(),{
 								success:function(){
 									Backbone.history.navigate(me.model_name.toLowerCase() + '/', true);

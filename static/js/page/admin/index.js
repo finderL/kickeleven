@@ -9,7 +9,6 @@ define(function(require){
 		tpl:'<div class="col-lg-12 flex-height"></div>',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
-			console.log(new Backbone.Collection(this.model_list));
 			new Table({
 				pager:false,
 				uiClass:'flex-height',

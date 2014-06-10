@@ -13,7 +13,7 @@ define(function(require, exports) {
 	Continent = require('../collection/continent'),
 	Nation = require('../collection/nation'),
 	NationTranslation = require('../collection/nationTranslation'),
-	NationTeam = require('../collection/nationTeam'),
+	Team = require('../collection/team'),
 	Position = require('../collection/position'),
 	Club = require('../collection/club'),
 	ClubTranslation = require('../collection/clubTranslation'),
@@ -140,7 +140,6 @@ define(function(require, exports) {
 				var me = this;
 				this.collection.get($(e.target).attr('data-item-id')).destroy({
 					success:function(model){
-						console.log(arguments);
 						me.collection.remove(model);
 					}
 				});
@@ -715,7 +714,7 @@ define(function(require, exports) {
 			allowBlank:false
 		}]
 	});
-	var ClubTeamAdmin = ModelAdmin.extend({
+	/*var ClubTeamAdmin = ModelAdmin.extend({
 		model_name : 'ClubTeam',
 		collection : ClubTeam,
 		columns : [{
@@ -760,18 +759,21 @@ define(function(require, exports) {
 			displayTpl:'<%_.each(value,function(item,index){%><%=item.short_name%><%if(index < value.length - 1){%>,<%}%><%})%>',
 			allowBlank:false
 		}]
-	});
-	var NationTeamAdmin = ModelAdmin.extend({
-		model_name : 'NationTeam',
-		collection : NationTeam,
+	});*/
+	var TeamAdmin = ModelAdmin.extend({
+		model_name : 'Team',
+		collection : Team,
 		columns : [{
-			text : i18n.__('Nation'),
+			text : i18n.__('Nation') + '/' + i18n.__('Club'),
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/admin/#nationteam/'+data.id+'/">'+value.full_name+'</a>';
+				if(data.type == 2){
+					return '<a data-item-id="'+data.id+'" href="/admin/#team/'+data.id+'/">'+value.club_name+'</a>';
+				}
+				return '<a data-item-id="'+data.id+'" href="/admin/#team/'+data.id+'/">'+value.full_name+'</a>';
 			},
-			dataIndex : 'nation'
+			dataIndex : 'owner'
 		},{
 			text : i18n.__('Team Name'),
 			flex : 1,
@@ -780,13 +782,49 @@ define(function(require, exports) {
 		}],
 		fields:[{
 			cls:SelectProprty,
-			name : 'nation_id',
-			id:'nation_id',
+			name : 'owner_id',
+			id:'owner_id',
 			displayField : 'full_name',
 			valueField:"id",
 			collection:Nation,
+			beforeInitField:function(){
+				if(this.model && this.model.get('type') == 2){
+					this.collection = Club;
+					this.displayField = 'club_name';
+				}
+			},
 			fieldLabel : i18n.__('Nation'),
 			emptyText:i18n.__('Nation'),
+			allowBlank:false
+		},{
+			cls:RadioGroup,
+			name : 'type',
+			fieldLabel : i18n.__('Type'),
+			value:1,
+			fields:[{
+				inputValue:1,
+				boxLabel:i18n.__('Nation Team')
+			},{
+				inputValue:2,
+				boxLabel:i18n.__('Club Team')
+			}],
+			listeners:{
+				'change':function(newValue, oldValue){
+					var owner = $('#owner_id').data('component');
+					if(newValue == "1"){
+						owner.clearValue();
+						owner.collection = new Nation;
+						owner.picker = undefined;
+						owner.displayField = 'full_name';
+					} else {
+						owner.clearValue();
+						owner.collection = new Club;
+						owner.picker = undefined;
+						owner.displayField = 'club_name';
+					}
+				}
+			},
+			emptyText:'11111',
 			allowBlank:false
 		},{
 			cls:TextProperty,
@@ -815,7 +853,7 @@ define(function(require, exports) {
 			value:1
 		}]
 	});
-	var ClubTeam2PlayerAdmin = ModelAdmin.extend({
+	/*var ClubTeam2PlayerAdmin = ModelAdmin.extend({
 		model_name : 'ClubTeam2Player',
 		collection : ClubTeam2Player,
 		columns : [{
@@ -854,7 +892,7 @@ define(function(require, exports) {
 			emptyText:i18n.__('Player'),
 			allowBlank:false
 		}]
-	});
+	});*/
 	var site = new AdminSite;
 	taurus.klass('k11.admin.continent',new ContinentAdmin);
 	taurus.klass('k11.admin.nation',new NationAdmin);
@@ -864,9 +902,9 @@ define(function(require, exports) {
 	taurus.klass('k11.admin.playertranslation',new PlayerTranslationAdmin);
 	taurus.klass('k11.admin.club',new ClubAdmin);
 	taurus.klass('k11.admin.clubtranslation',new ClubTranslationAdmin);
-	taurus.klass('k11.admin.clubteam',new ClubTeamAdmin);
-	taurus.klass('k11.admin.nationteam',new NationTeamAdmin);
-	taurus.klass('k11.admin.clubteam2player',new ClubTeam2PlayerAdmin);
+	//taurus.klass('k11.admin.clubteam',new ClubTeamAdmin);
+	taurus.klass('k11.admin.team',new TeamAdmin);
+	//taurus.klass('k11.admin.clubteam2player',new ClubTeam2PlayerAdmin);
 	exports.site = site;
 	exports.continent = ContinentAdmin;
 	exports.nation = NationAdmin;

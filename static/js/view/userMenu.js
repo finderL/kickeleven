@@ -15,7 +15,6 @@ define(function(require){
 				return false;
 			},
 			'click li:eq(1)':function(){
-				console.log('edit')
 				require.async('../widget/playerEditDialog',function(Dialog){
 					(new Dialog({
 						title:'编辑信息',

@@ -116,7 +116,6 @@ class Nation(TranslationModel):
     player = relationship("Player", backref="nationality")
     translation = relationship("NationTranslation", backref="nation", lazy="dynamic")
     club = relationship("Club", backref="nation", lazy="dynamic")
-    team = relationship('NationTeam', backref="nation", lazy="dynamic")
 
     def get_tranlation(self):
         translation = self.translation.filter(NationTranslation.nation_id == self.id).filter(NationTranslation.language_code==self.get_language())
@@ -145,7 +144,6 @@ class Club(TranslationModel):
     home_kit = Column(CHAR(45))
     away_kit = Column(CHAR(45))
     third_kit = Column(CHAR(45))
-    team = relationship('ClubTeam', backref="club", lazy="dynamic")
     translation = relationship('ClubTranslation', backref="club_ref", lazy="dynamic")
     
     def to_api(self, admin):
@@ -172,63 +170,84 @@ class ClubTranslation(Translation):
     club = Column(TINYINT(10), ForeignKey('club.id'))
 
 class Team(ApiModel):
-    __abstract__ = True
+    __tablename__ = 'team'
+
     id = Column(Integer, primary_key=True, autoincrement=True)
+    owner_id = Column(Integer)
+    type = Column(TINYINT(1),default=1) # 1 for nation, 2 for club
     team_name = Column(String(15))
     level = Column(TINYINT(2),default=1)
-
-class ClubTeam(Team):
-    __tablename__ = 'clubteam'
-
-    club_id = Column(Integer, ForeignKey('club.id')) # or Column(String(30))
-    team2player = relationship("ClubTeamPlayer", backref="team", cascade='all, delete-orphan')
+    teamplayer = relationship("TeamPlayer", backref="team", cascade='all, delete-orphan')
     
     def to_api(self,admin):
         db = DB_Session()
-        o = super(ClubTeam, self).to_api()
-        club = self.club
+        o = super(Team, self).to_api()
+        if o['type'] == 1:
+            owner = db.query(Nation).get(o['owner_id'])
+        else:
+            owner = db.query(Club).get(o['owner_id'])
         try:
-            o['club'] = club.to_api(admin)
+            o['owner'] = owner.to_api(admin)
         except Exception,e:
-            o['club'] = None
+            o['owner'] = None
         db.close()
         return o
 
-class NationTeam(Team):
-    __tablename__ = 'nationteam'
-
-    nation_id = Column(Integer, ForeignKey('nation.id')) # or Column(String(30))
-    team2player = relationship("NationTeamPlayer", backref="team_ref", cascade='all, delete-orphan')
-    
-    def to_api(self,admin):
-        db = DB_Session()
-        o = super(NationTeam, self).to_api()
-        nation = self.nation
-        try:
-            o['nation'] = nation.to_api(admin)
-        except Exception,e:
-            o['nation'] = None
-        db.close()
-        return o
+# class ClubTeam(Team):
+#     __tablename__ = 'clubteam'
+# 
+#     club_id = Column(Integer, ForeignKey('club.id')) # or Column(String(30))
+#     team2player = relationship("ClubTeamPlayer", backref="team", cascade='all, delete-orphan')
+#     
+#     def to_api(self,admin):
+#         db = DB_Session()
+#         o = super(ClubTeam, self).to_api()
+#         club = self.club
+#         try:
+#             o['club'] = club.to_api(admin)
+#         except Exception,e:
+#             o['club'] = None
+#         db.close()
+#         return o
+# 
+# class NationTeam(Team):
+#     __tablename__ = 'nationteam'
+# 
+#     nation_id = Column(Integer, ForeignKey('nation.id')) # or Column(String(30))
+#     team2player = relationship("NationTeamPlayer", backref="team_ref", cascade='all, delete-orphan')
+#     
+#     def to_api(self,admin):
+#         db = DB_Session()
+#         o = super(NationTeam, self).to_api()
+#         nation = self.nation
+#         try:
+#             o['nation'] = nation.to_api(admin)
+#         except Exception,e:
+#             o['nation'] = None
+#         db.close()
+#         return o
 
 class TeamPlayer(BaseModel):
-    __abstract__ = True
+    __tablename__ = 'teamplayer'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-
-class ClubTeamPlayer(TeamPlayer):
-    __tablename__ = 'clubteam2player'
-
-    team_id = Column(Integer, ForeignKey('clubteam.id'), primary_key=True)
+    team_id = Column(Integer, ForeignKey('team.id'), primary_key=True)
     player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
-    player = relationship("Player", backref="clubteam2player")
+    player = relationship("Player", backref="teamplayer")
 
-class NationTeamPlayer(TeamPlayer):
-    __tablename__ = 'nationteam2player'
-
-    team_id = Column(Integer, ForeignKey('nationteam.id'), primary_key=True)
-    player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
-    player = relationship("Player", backref="nationteam2player")
+# class ClubTeamPlayer(TeamPlayer):
+#     __tablename__ = 'clubteam2player'
+# 
+#     team_id = Column(Integer, ForeignKey('clubteam.id'), primary_key=True)
+#     player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
+#     player = relationship("Player", backref="clubteam2player")
+# 
+# class NationTeamPlayer(TeamPlayer):
+#     __tablename__ = 'nationteam2player'
+# 
+#     team_id = Column(Integer, ForeignKey('nationteam.id'), primary_key=True)
+#     player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
+#     player = relationship("Player", backref="nationteam2player")
 
 class PlayerPosition(BaseModel):
     __tablename__ = 'player2position'

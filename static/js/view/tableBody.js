@@ -10,7 +10,6 @@ define(function(require){
 				this.collection.requestNextPage();
 			})
 			this.collection.on('add',function(model){
-				console.log(model)
 			})
 			this.collection.requestNextPage();
 		}

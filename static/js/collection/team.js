@@ -3,9 +3,9 @@
  */
 define(function(require) {
 	var RequestPager = require('./requestPager'),
-	Player = require('../model/player');
+	Team = require('../model/team');
 	return RequestPager.extend({
-		model : Player,
+		model : Team,
 		paginator_core : {
 			type : 'GET',
 
@@ -14,7 +14,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api?method=player'
+			url : '/api?method=team'
 		},
 		paginator_ui : {
 			// the lowest page index your API allows to be accessed
@@ -37,24 +37,15 @@ define(function(require) {
 			p : function() {
 				return this.currentPage;
 			},
-			club:function(){
-				if (this.club)
-					return this.club.id;
-				return 0;
-			},
 			limit:function(){
 				return this.perPage;
-			},
-			action:function(){
-				return this.query ? 'search':0;
 			}
 		},
 		parse : function(resp) {
 			var results;
 			if(resp.rv){
-				results = resp.rv.player;
-				if(resp.rv.count)
-					this.totalRecords = resp.rv.count;
+				results = resp.rv.team;
+				this.totalRecords = resp.rv.count;
 			} else {
 				results = _.isArray(resp) ? resp : resp.results;
 				//Normally this.totalPages would equal response.d.__count
@@ -65,9 +56,6 @@ define(function(require) {
 					this.totalRecords = resp.count;
 			}
 			return results;
-		},
-		comparator :function(player){
-			return player.get("full_name");
 		}
 	});
 });

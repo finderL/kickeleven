@@ -6,7 +6,6 @@ define(function(require){
 	return taurus.view('taurus.view.PlayerProfile',Base.extend({
 		getTplData : function() {
 			var data = Base.prototype.getTplData.apply(this,arguments),json = {};
-			console.log(data)
 			json.items = [
 				{
 					name:'国籍',
