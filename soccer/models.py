@@ -131,6 +131,20 @@ class NationTranslation(Translation):
     nationality = Column(String(30))
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
 
+class City(TranslationModel):
+    __tablename__ = 'city'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    city_name = Column(String(60))
+    nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
+
+class CityTranslation(Translation):
+    __tablename__ = 'citytranslation'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    city_name = Column(String(60))
+    city_id = Column(Integer, ForeignKey('city.id'))
+
 class Club(TranslationModel):
     __tablename__ = 'club'
 
@@ -193,40 +207,6 @@ class Team(ApiModel):
         db.close()
         return o
 
-# class ClubTeam(Team):
-#     __tablename__ = 'clubteam'
-# 
-#     club_id = Column(Integer, ForeignKey('club.id')) # or Column(String(30))
-#     team2player = relationship("ClubTeamPlayer", backref="team", cascade='all, delete-orphan')
-#     
-#     def to_api(self,admin):
-#         db = DB_Session()
-#         o = super(ClubTeam, self).to_api()
-#         club = self.club
-#         try:
-#             o['club'] = club.to_api(admin)
-#         except Exception,e:
-#             o['club'] = None
-#         db.close()
-#         return o
-# 
-# class NationTeam(Team):
-#     __tablename__ = 'nationteam'
-# 
-#     nation_id = Column(Integer, ForeignKey('nation.id')) # or Column(String(30))
-#     team2player = relationship("NationTeamPlayer", backref="team_ref", cascade='all, delete-orphan')
-#     
-#     def to_api(self,admin):
-#         db = DB_Session()
-#         o = super(NationTeam, self).to_api()
-#         nation = self.nation
-#         try:
-#             o['nation'] = nation.to_api(admin)
-#         except Exception,e:
-#             o['nation'] = None
-#         db.close()
-#         return o
-
 class TeamPlayer(BaseModel):
     __tablename__ = 'teamplayer'
 
@@ -234,20 +214,6 @@ class TeamPlayer(BaseModel):
     team_id = Column(Integer, ForeignKey('team.id'), primary_key=True)
     player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
     player = relationship("Player", backref="teamplayer")
-
-# class ClubTeamPlayer(TeamPlayer):
-#     __tablename__ = 'clubteam2player'
-# 
-#     team_id = Column(Integer, ForeignKey('clubteam.id'), primary_key=True)
-#     player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
-#     player = relationship("Player", backref="clubteam2player")
-# 
-# class NationTeamPlayer(TeamPlayer):
-#     __tablename__ = 'nationteam2player'
-# 
-#     team_id = Column(Integer, ForeignKey('nationteam.id'), primary_key=True)
-#     player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
-#     player = relationship("Player", backref="nationteam2player")
 
 class PlayerPosition(BaseModel):
     __tablename__ = 'player2position'
@@ -311,3 +277,14 @@ class Position(ApiModel):
     __mapper_args__ = {
         "order_by":["position_name","side","score"]
     }
+
+class Match(ApiModel):
+    __tablename__ = 'match'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    home = Column(Integer) # or Column(String(30))
+    away = Column(Integer) # or Column(String(30))
+    match_date = Column(DateTime)
+    city_id = Column(Integer, ForeignKey('city.id'))
+    home_score = Column(TINYINT(2))
+    away_score = Column(TINYINT(2))
