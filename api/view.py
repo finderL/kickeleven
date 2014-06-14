@@ -8,9 +8,37 @@ Created on 2011-9-12
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
 from sqlalchemy.orm import class_mapper
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Team, TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, parseAcceptLanguage
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Team, TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Match
 from settings import TEMP_DIR
-from sqlalchemy.types import CHAR, String, Date, DateTime, Text, Integer
+from sqlalchemy.types import String
+
+PAGE_ARGS = ('limit','p')
+
+def paging(query, limit=None, p=None):
+    if limit is not None:
+        limit = int(limit)
+        offset = (int(p) - 1)*limit
+        return query.offset(offset).limit(limit)
+
+class Base:
+    def render_api_response(self, rv, format="json", servertime=None):
+        o = {"status": "ok"}
+        # TODO make this into something real
+        rv = {"rv": rv.to_api()}
+        o.update(rv)
+
+        web.header('Content-Type', 'application/json')
+        return json.dumps(o)
+
+class Players(Base):
+    def GET(self):
+        db = DB_Session()
+        query = db.query(Player)
+        player = query
+        count = player.count()
+        n = ResultWrapper(player, player=[v.to_api(1) for v in player],count=count)
+        db.close()
+        return self.render_api_response(n)        
 
 class ExtendedEncoder(json.JSONEncoder):
 
@@ -168,6 +196,38 @@ def continent(id=None, p=0, limit=20):
     db.close()
     return n
 
+def city(id=None, p=None, limit=None, admin=None):
+    db = DB_Session()
+    query = db.query(City)
+    if web.ctx.method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if web.ctx.method in ('PUT','PATCH'):
+            city = query.get(int(id))
+            for name,value in i.items():
+                setattr(city, name, value)
+        else:
+            city = City(**i)
+            db.add(city)
+            db.flush()
+            db.refresh(city)
+        db.commit()
+        n = ResultWrapper(city, city=city.to_api(admin))
+    else:
+        if id:
+            city = query.get(int(id))
+            n = ResultWrapper(city, city=city.to_api(admin))
+        else:
+            if limit is not None:
+                limit = int(limit)
+                offset = (int(p) - 1)*limit
+                city = query.offset(offset).limit(limit).all()
+            else:
+                city = query.all()
+            n = ResultWrapper(city, city=[v.to_api(admin) for v in city],count=query.count())
+#             n = {'player' : list,'count':results[0].players}
+    db.close()
+    return n
+
 def position(id=None, p=None, limit=None, admin=None):
     db = DB_Session()
     query = db.query(Position)
@@ -196,7 +256,6 @@ def position(id=None, p=None, limit=None, admin=None):
             else:
                 position = query.all()
             n = ResultWrapper(position, position=[v.to_api() for v in position],count=query.count())
-#             n = {'player' : list,'count':results[0].players}
     db.close()
     return n
 
@@ -291,10 +350,7 @@ def player(id=None, p=None, limit=None, admin=None, action=None, **kwargs):
                             sql_string = ' like "%'+kwargs[column_name]+'%"'
                         player = query.filter(column_name + sql_string)
             count = player.count()
-            if limit is not None:
-                limit = int(limit)
-                offset = (int(p) - 1)*limit
-                player = player.offset(offset).limit(limit)
+            player = paging(player, limit, p)
             n = ResultWrapper(player, player=[v.to_api(admin) for v in player],count=count)
 #             n = {'player' : list,'count':results[0].players}
     db.close()
@@ -394,6 +450,35 @@ def team(id=None, p=0, limit=20,admin=None):
     db.close()
     return n
 
+def match(id=None, p=0, limit=20,admin=None):
+    db = DB_Session()
+    query = db.query(Match)
+    if web.ctx.method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if web.ctx.method in ('PUT','PATCH'):
+            match = query.get(int(id))
+            for name,value in i.items():
+                setattr(match, name, value)
+        else:
+            match = Match(**i)
+            db.add(match)
+            db.flush()
+            db.refresh(match)
+        db.commit()
+        n = ResultWrapper(match, match=match.to_api(admin))
+    else:
+        if id:
+            match = query.get(int(id))
+            match = match.to_api(admin)
+            n = ResultWrapper(match, match=match)
+        else:
+            limit = int(limit)
+            offset = (int(p) - 1)*limit
+            match = query.offset(offset).limit(limit).all()
+            n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
+    db.close()
+    return n
+
 def clubteam2player(id=None, p=0, limit=20):
     if web.ctx.method in ('POST','PUT','PATCH'):
         i=web.data()
@@ -426,12 +511,14 @@ class PublicApi:
     methods = {"continent":continent,
                "nationtranslation":nationtranslation,
                "nation":nation,
+               "city":city,
                "position":position,
                "player":player,
                "playertranslation":playertranslation,
                "club":club,
                "clubtranslation":clubtranslation,
                "team":team,
+               "match":match,
                "clubsquad":clubsquad,
                "nationsquad":nationsquad,
                'clubteam2player':clubteam2player}
@@ -442,20 +529,20 @@ class PublicApi:
     
     root_methods = ("user_authenticate","task_process_actor")
 
-    def GET(self):
-        return self.api_call()
+    def GET(self, name):
+        return self.api_call(name)
 
-    def POST(self):
-        return self.api_call()
+    def POST(self, name):
+        return self.api_call(name)
 
-    def PUT(self):
-        return self.api_call()
+    def PUT(self, name):
+        return self.api_call(name)
     
-    def PATCH(self):
-        return self.api_call()
+    def PATCH(self, name):
+        return self.api_call(name)
     
-    def DELETE(self):
-        return self.api_call()
+    def DELETE(self, name):
+        return self.api_call(name)
     
     def call_method(self, name, api_user=None):
         if api_user and name in self.root_methods and name in self.root_methods:
@@ -466,7 +553,7 @@ class PublicApi:
             return self.private_methods[name]
         return None
 
-    def api_call(self, format="json"):
+    def api_call(self, name, format="json"):
         """ the public api
         
         attempts to validate a request as a valid oauth request then
@@ -476,11 +563,11 @@ class PublicApi:
         try:
             if web.ctx.method in ('POST','PUT','PATCH'):
                 kwargs = dict(urlparse.parse_qsl(web.ctx.query.replace('?', '')))
-                method = kwargs.pop('method', '').replace('.', '_')
+                method = name or kwargs.pop('method', '').replace('.', '_')
             else:
                 kwargs = urlparse.parse_qsl(web.ctx.query.replace('?', ''))
                 kwargs = dict(kwargs)
-                method = kwargs.pop('method', '').replace('.', '_')
+                method = name or kwargs.pop('method', '').replace('.', '_')
             method_ref = self.call_method(method)
             rv = method_ref(**kwargs)
             return self.render_api_response(rv, format)

@@ -6,9 +6,10 @@ Created on 2011-9-12
 @author: nttdocomo
 '''
 import web
-from view import PublicApi, Upload
+from view import *
 
-urls = ('', 'PublicApi',
-        '/upload','Upload')
+urls = ('/upload','Upload',
+        '', 'PublicApi',
+        '/(.+)/', 'PublicApi')
 
 app_api = web.application(urls, locals())

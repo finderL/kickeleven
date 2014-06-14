@@ -3,9 +3,9 @@
  */
 define(function(require) {
 	var RequestPager = require('./requestPager'),
-	Match = require('../model/match');
+	City = require('../model/city');
 	return RequestPager.extend({
-		model : Match,
+		model : City,
 		paginator_core : {
 			type : 'GET',
 
@@ -14,7 +14,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api/match/'
+			url : '/api?method=city'
 		},
 		paginator_ui : {
 			// the lowest page index your API allows to be accessed
@@ -47,7 +47,7 @@ define(function(require) {
 		parse : function(resp) {
 			var results;
 			if(resp.rv){
-				results = resp.rv.match;
+				results = resp.rv.city;
 				if(resp.rv.count)
 					this.totalRecords = resp.rv.count;
 			} else {

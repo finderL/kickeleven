@@ -15,4 +15,11 @@ engine = create_engine(DB_CONNECT_STRING, echo=True)
 DB_Session = sessionmaker(bind=engine,expire_on_commit=False)
 sql_session = scoped_session(sessionmaker(bind=engine))
 
-BaseModel = declarative_base()
+Base = declarative_base()
+
+class BaseModel(Base):
+    __abstract__ = True
+    __table_args__ = { # 可以省掉子类的 __table_args__ 了
+        'mysql_engine': 'InnoDB',
+        'mysql_charset': 'utf8'
+    }

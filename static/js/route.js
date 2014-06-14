@@ -3,11 +3,11 @@
  */
 define(function(require) {
 	require('backbone');
-	var site = require('./admin/admin').site;
-	var NationAdmin = require('./admin/admin').nation;
-	var patterns = require('./admin/admin').patterns;
-	var route = Backbone.Router.prototype.route;
-	return taurus.klass('taurus.Router', Backbone.Router.extend({
+	var site = require('./admin/admin').site,
+	patterns = require('./admin/admin').patterns,
+	route = Backbone.Router.prototype.route,
+	ga = ga || function(){};
+	return Backbone.Router.extend({
 		container : taurus.$body.find('>.container-fluid'),
 		initialize : function() {
 			this.routeMethods = {};
@@ -15,7 +15,7 @@ define(function(require) {
 		},
 		_trackPageview : function() {
 			var url = Backbone.history.getFragment();
-			return ga && ga('send', 'pageview', '/' + url);
+			return ga('send', 'pageview', '/' + url);
 		},
 		routes : $.extend(patterns('admin',site.get_urls()),{
 			"" : "home", // #home
@@ -28,11 +28,6 @@ define(function(require) {
 			":page/" : "page", // #playerlist
 			":page/:id/" : "overview" // #contractlist
 		}),
-		_addRouteMethods : function(path, name) {
-			var E = this.constructor.generatePathFunction(path), H = name + "Path";
-			this[H] = E;
-			return E
-		},
 		route : function(route, name, callback) {
 			if (!_.isRegExp(route))
 				route = this._routeToRegExp(route);
@@ -107,7 +102,7 @@ define(function(require) {
 			});
 		},
 		page : function(pageName) {
-			var me = this,key = _.toArray(arguments).join('')
+			var me = this,key = _.toArray(arguments).join('');
 			//var d = taurus.app.switchToPage(Array.prototype.shift.call(arguments),arguments);
 			require.async("./page/" + pageName, function(Page) {
 				new Page({
@@ -117,12 +112,11 @@ define(function(require) {
 			//d.send('new', Array.prototype.slice.apply(arguments))
 		},
 		overview : function(page, id) {
-			var id = Array.prototype.splice.call(arguments,1,1)
-			var me = this;
+			var me = this, id = Array.prototype.splice.call(arguments,1,1);
 			if(arguments.length == 1){
-				Array.prototype.push.call(arguments,"index")
+				Array.prototype.push.call(arguments,"index");
 			}
-			var path = "./page/"+ Array.prototype.slice.call(arguments,0).join("/")
+			var path = "./page/"+ Array.prototype.slice.call(arguments,0).join("/");
 			require.async(path, function(Page) {
 				new Page({
 					id : id,
@@ -130,46 +124,8 @@ define(function(require) {
 					 id:id
 					 }),*/
 					renderTo : me.container.empty()
-				})
-			})
+				});
+			});
 		}
-	}, {
-		generatePathFunction : function(path) {
-			var self = this;
-			return function(H) {
-				var G = self.supplantPath(path, H);
-				if (G === false && !taurus.isTestEnv) {
-					console.error("Failed to generate a path", path, H)
-				}
-				return G
-			}
-		},
-		supplantPath : function(J, L) {
-			var F = J.split("#").join("/#").split("/"), E = [];
-			for (var I = 0; I < F.length; I++) {
-				var H = F[I], G = false;
-				if (H.charAt(0) === "#") {
-					H = H.slice(1);
-					G = true
-				}
-				if (H.charAt(0) === ":") {
-					var K = H.slice(1);
-					if ( typeof L[K] === "undefined") {
-						return false
-					} else {
-						H = L[K];
-						if ( typeof H === "function") {
-							H = H.call(L)
-						}
-						H = encodeURIComponent(H)
-					}
-				}
-				if (G) {
-					H = "#" + H
-				}
-				E.push(H)
-			}
-			return E.join("/").split("/#").join("#")
-		}
-	}));
+	});
 });

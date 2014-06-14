@@ -7,10 +7,10 @@ Created on 2014-1-23
 '''
 import web
 import datetime
-from db.models import BaseModel,DB_Session,sql_session
+from db.models import BaseModel,DB_Session
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import class_mapper
-from sqlalchemy.types import CHAR, String, Date, DateTime, Text, Integer
+from sqlalchemy.types import CHAR, String, Date, DateTime, Boolean, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import TINYINT
 
@@ -41,13 +41,9 @@ def _to_api(v):
         v = dict([(key, _to_api(value)) for (key, value) in v.iteritems()])
     return v
 
-class ApiModel(BaseModel):
+class ApiModel(BaseModel): 
     __abstract__ = True
-    __table_args__ = { # 可以省掉子类的 __table_args__ 了
-        'mysql_engine': 'InnoDB',
-        'mysql_charset': 'utf8'
-    }
-    
+   
     def to_api(self):
         o = {}
         columns = [c.key for c in class_mapper(self.__class__).columns]
@@ -58,6 +54,7 @@ class ApiModel(BaseModel):
 
 class Translation(ApiModel):
     __abstract__ = True
+
     language_code = Column(CHAR(6))
     #version = db.IntegerProperty(verbose_name="版本", default=1)
 #     active = db.BooleanProperty(verbose_name="是否激活", default=True)
@@ -107,7 +104,6 @@ class Nation(TranslationModel):
     id = Column(TINYINT(1), primary_key=True, autoincrement=True)
     full_name = Column(String(60)) # or Column(String(30))
     short_name = Column(String(30)) # or Column(String(30))
-    capital_city = Column(String(60))
     nationality = Column(String(30))
     continent_id = Column(TINYINT(3), ForeignKey('continent.id'))
     normal_flag = Column(CHAR(45))
@@ -116,6 +112,7 @@ class Nation(TranslationModel):
     player = relationship("Player", backref="nationality")
     translation = relationship("NationTranslation", backref="nation", lazy="dynamic")
     club = relationship("Club", backref="nation", lazy="dynamic")
+    city = relationship("City", backref="nation", lazy="dynamic")
 
     def get_tranlation(self):
         translation = self.translation.filter(NationTranslation.nation_id == self.id).filter(NationTranslation.language_code==self.get_language())
@@ -127,7 +124,6 @@ class NationTranslation(Translation):
     id = Column(Integer, primary_key=True, autoincrement=True)
     full_name = Column(String(60)) # or Column(String(30))
     short_name = Column(String(30)) # or Column(String(30))
-    capital_city = Column(String(60))
     nationality = Column(String(30))
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
 
@@ -137,6 +133,18 @@ class City(TranslationModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     city_name = Column(String(60))
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
+    capital = Column(Boolean, default=False)
+
+    def to_api(self,admin=None):
+        o = super(TranslationModel, self).to_api()
+        o['nation'] = self.nation.to_api(admin)
+        #del o['id']
+        #del o['language_code']
+        return o
+
+    def get_tranlation(self):
+        translation = self.translation.filter(CityTranslation.city_id == self.id).filter(CityTranslation.language_code==self.get_language())
+        return super(City, self).get_tranlation(translation)
 
 class CityTranslation(Translation):
     __tablename__ = 'citytranslation'
@@ -236,6 +244,8 @@ class Player(TranslationModel):
     left_foot = Column(TINYINT(2))
     right_foot = Column(TINYINT(2))
     avatar = Column(CHAR(45))
+    created_at = Column(DateTime, default=datetime.datetime.now)
+    updated_at = Column(DateTime, onupdate=datetime.datetime.now)
     translation = relationship('PlayerTranslation', backref="player_ref", lazy="dynamic")
     player2position = relationship("PlayerPosition", backref="player_ref", cascade='all, delete-orphan')
     
@@ -252,6 +262,8 @@ class Player(TranslationModel):
             o['nation'] = None
         if not o['avatar']:
             del o['avatar']
+        del o['created_at']
+        del o['updated_at']
         return o
 
     def get_tranlation(self):
@@ -282,9 +294,23 @@ class Match(ApiModel):
     __tablename__ = 'match'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    home = Column(Integer) # or Column(String(30))
-    away = Column(Integer) # or Column(String(30))
+    home_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
+    away_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
     match_date = Column(DateTime)
-    city_id = Column(Integer, ForeignKey('city.id'))
+    city_id = Column(Integer, ForeignKey(City.id))
     home_score = Column(TINYINT(2))
     away_score = Column(TINYINT(2))
+    home_team = relationship("Team", foreign_keys="Match.home_id")
+    away_team = relationship("Team", foreign_keys="Match.away_id")
+    city = relationship("City", foreign_keys="Match.city_id")
+    
+    __mapper_args__ = {
+        "order_by":["match_date"]
+    }
+    
+    def to_api(self, admin):
+        o = super(Match, self).to_api()
+        o['home_team'] = self.home_team.to_api(admin)
+        o['away_team'] = self.away_team.to_api(admin)
+        o['city'] = self.city.to_api(admin)
+        return o

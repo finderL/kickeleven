@@ -3,7 +3,7 @@
  */
 define(function(require) {
 	require('../taurus/lang/date');
-	return taurus.klass('taurus.model.Player', Backbone.Model.extend({
+	return Backbone.Model.extend({
 		defaults:{
 			avatar:'none.png'
 		},
@@ -65,5 +65,5 @@ define(function(require) {
 			}
 			return resp
 		}
-	}));
+	});
 });

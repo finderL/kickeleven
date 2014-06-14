@@ -3,9 +3,11 @@
  */
 define(function(require, exports) {
 	require('../class');
+	require('taurus/moment');
 	var TextProperty = require('../taurus/form/field/text'),
 	SelectProprty = require('../taurus/form/field/comboBox'),
 	NumberProperty = require('../taurus/form/field/number'),
+	DateTime = require('../taurus/form/field/datetime'),
 	FileProprty = require('../taurus/form/field/file'),
 	DateProprty = require('../taurus/form/field/date'),
 	RadioGroup = require('../taurus/form/radioGroup'),
@@ -13,14 +15,14 @@ define(function(require, exports) {
 	Continent = require('../collection/continent'),
 	Nation = require('../collection/nation'),
 	NationTranslation = require('../collection/nationTranslation'),
+	City = require('../collection/city'),
 	Team = require('../collection/team'),
+	Match = require('../collection/match'),
 	Position = require('../collection/position'),
 	Club = require('../collection/club'),
 	ClubTranslation = require('../collection/clubTranslation'),
-	ClubTeam = require('../collection/clubTeam'),
 	Player = require('../collection/player'),
 	PlayerTranslation = require('../collection/playerTranslation'),
-	ClubTeam2Player = require('../collection/clubTeam2Player'),
 	i18n = require('../i18n/zh-cn'),
 	vsprintf = require('../taurus/util/sprintf').vsprintf;
 	var patterns = function(prefix, urls){
@@ -340,6 +342,57 @@ define(function(require, exports) {
 			name : 'capital_city',
 			fieldLabel : i18n.__('Capital City'),
 			emptyText:i18n.__('Capital City'),
+			allowBlank:false
+		}]
+	});
+	
+	var CityAdmin = ModelAdmin.extend({
+		model_name : 'City',
+		collection : City,
+		columns : [{
+			text : i18n.__('City Name'),
+			flex : 1,
+			sortable : false,
+			renderer : function(value,data) {
+				return '<a data-item-id="'+data.id+'" href="/admin/#city/'+data.id+'/">'+value+'</a>';
+			},
+			dataIndex : 'city_name'
+		},{
+			text : i18n.__('Nation'),
+			flex : 1,
+			sortable : false,
+			renderer : function(value,data) {
+				return value.short_name;
+			},
+			dataIndex : 'nation'
+		}],
+		fields:[{
+			cls:TextProperty,
+			name : 'city_name',
+			fieldLabel : i18n.__('City Name'),
+			emptyText:i18n.__('City Name'),
+			allowBlank:false
+		},{
+			cls:SelectProprty,
+			name : 'nation_id',
+			collection:Nation,
+			displayField : 'full_name',
+			valueField:"id",
+			fieldLabel : i18n.__('Nation'),
+			emptyText:i18n.__('Nation'),
+			allowBlank:false
+		},{
+			cls:RadioGroup,
+			name : 'capital',
+			fieldLabel : i18n.__('Capital'),
+			value:0,
+			fields:[{
+				inputValue:1,
+				boxLabel:i18n.__('Capital City')
+			},{
+				inputValue:0,
+				boxLabel:i18n.__('None Capital City')
+			}],
 			allowBlank:false
 		}]
 	});
@@ -714,52 +767,6 @@ define(function(require, exports) {
 			allowBlank:false
 		}]
 	});
-	/*var ClubTeamAdmin = ModelAdmin.extend({
-		model_name : 'ClubTeam',
-		collection : ClubTeam,
-		columns : [{
-			text : i18n.__('Club'),
-			flex : 1,
-			sortable : false,
-			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/admin/#clubteam/'+data.id+'/">'+value.club_name+'</a>';
-			},
-			dataIndex : 'club'
-		},{
-			text : i18n.__('Team Name'),
-			flex : 1,
-			sortable : false,
-			dataIndex : 'team_name'
-		}],
-		fields:[{
-			cls:SelectProprty,
-			name : 'club_id',
-			id:'club_id',
-			displayField : 'club_name',
-			valueField:"id",
-			collection:Club,
-			fieldLabel : i18n.__('Club'),
-			emptyText:i18n.__('Club'),
-			allowBlank:false
-		},{
-			cls:TextProperty,
-			name : 'team_name',
-			fieldLabel : i18n.__('Team Name'),
-			emptyText:'11111',
-			allowBlank:false
-		},{
-			cls:SelectProprty,
-			name : 'player',
-			collection:Player,
-			displayField : 'short_name',
-			valueField:"id",
-			multiSelect:true,
-			fieldLabel : i18n.__('Player'),
-			emptyText:i18n.__('Player'),
-			displayTpl:'<%_.each(value,function(item,index){%><%=item.short_name%><%if(index < value.length - 1){%>,<%}%><%})%>',
-			allowBlank:false
-		}]
-	});*/
 	var TeamAdmin = ModelAdmin.extend({
 		model_name : 'Team',
 		collection : Team,
@@ -852,51 +859,94 @@ define(function(require, exports) {
 			emptyText:'请输入数字',
 			value:1
 		}]
-	});
-	/*var ClubTeam2PlayerAdmin = ModelAdmin.extend({
-		model_name : 'ClubTeam2Player',
-		collection : ClubTeam2Player,
+	}),
+	MatchAdmin = ModelAdmin.extend({
+		model_name : 'Match',
+		collection : Match,
 		columns : [{
-			text : i18n.__('Team'),
+			text : i18n.__('Home'),
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return '<a data-item-id="'+data.id+'" href="/admin/#team2player/'+data.id+'/">'+ value.team_name + '</a>';
+				if(value.type == 2){
+					return '<a data-item-id="'+data.id+'" href="/admin/#match/'+data.id+'/">'+value.owner.club_name+'</a>';
+				}
+				return '<a data-item-id="'+data.id+'" href="/admin/#match/'+data.id+'/">'+value.owner.full_name+'</a>';
 			},
-			dataIndex : 'team'
+			dataIndex : 'home_team'
 		},{
-			text : i18n.__('Player'),
+			text : i18n.__('Away'),
 			flex : 1,
 			sortable : false,
 			renderer : function(value,data) {
-				return value.full_name;
+				if(data.type == 2){
+					return '<a data-item-id="'+data.id+'" href="/admin/#match/'+data.id+'/">'+value.owner.club_name+'</a>';
+				}
+				return '<a data-item-id="'+data.id+'" href="/admin/#match/'+data.id+'/">'+value.owner.full_name+'</a>';
 			},
-			dataIndex : 'player'
+			dataIndex : 'away_team'
+		},{
+			text : i18n.__('Match Date'),
+			flex : 1,
+			sortable : false,
+			renderer : function(value,data) {
+				return moment(value).format('YYYY-MM-DD HH:mm:ss');
+			},
+			dataIndex : 'match_date'
 		}],
 		fields:[{
 			cls:SelectProprty,
-			name : 'team',
-			collection:ClubTeam,
+			name : 'home_id',
 			displayField : 'team_name',
 			valueField:"id",
-			fieldLabel : i18n.__('Team'),
-			emptyText:i18n.__('Team'),
+			collection:Team,
+			fieldLabel : i18n.__('Home'),
+			emptyText:i18n.__('Home'),
 			allowBlank:false
 		},{
 			cls:SelectProprty,
-			name : 'player',
-			collection:new Player,
-			displayField : 'short_name',
+			name : 'away_id',
+			displayField : 'team_name',
 			valueField:"id",
-			fieldLabel : i18n.__('Player'),
-			emptyText:i18n.__('Player'),
+			collection:Team,
+			fieldLabel : i18n.__('Away'),
+			emptyText:i18n.__('Away'),
 			allowBlank:false
+		},{
+			cls:DateTime,
+			name : 'match_date',
+			fieldLabel : i18n.__('Match Date'),
+			emptyText:i18n.__('Match Date'),
+			format:'YYYY-MM-DD HH:mm:ss',
+			allowBlank:false
+		},{
+			cls:SelectProprty,
+			name : 'city_id',
+			displayField : 'city_name',
+			valueField:"id",
+			collection:City,
+			fieldLabel : i18n.__('City'),
+			emptyText:i18n.__('City'),
+			allowBlank:false
+		},{
+			cls:NumberProperty,
+			name : 'home_score',
+			fieldLabel : i18n.__('Home Score'),
+			emptyText:'请输入数字',
+			value:0
+		},{
+			cls:NumberProperty,
+			name : 'away_score',
+			fieldLabel : i18n.__('Away Score'),
+			emptyText:'请输入数字',
+			value:0
 		}]
-	});*/
+	});
 	var site = new AdminSite;
 	taurus.klass('k11.admin.continent',new ContinentAdmin);
 	taurus.klass('k11.admin.nation',new NationAdmin);
 	taurus.klass('k11.admin.nationtranslation',new NationTranslationAdmin);
+	taurus.klass('k11.admin.city',new CityAdmin);
 	taurus.klass('k11.admin.position',new PositionAdmin);
 	taurus.klass('k11.admin.player',new PlayerAdmin);
 	taurus.klass('k11.admin.playertranslation',new PlayerTranslationAdmin);
@@ -904,6 +954,7 @@ define(function(require, exports) {
 	taurus.klass('k11.admin.clubtranslation',new ClubTranslationAdmin);
 	//taurus.klass('k11.admin.clubteam',new ClubTeamAdmin);
 	taurus.klass('k11.admin.team',new TeamAdmin);
+	taurus.klass('k11.admin.match',new MatchAdmin);
 	//taurus.klass('k11.admin.clubteam2player',new ClubTeam2PlayerAdmin);
 	exports.site = site;
 	exports.continent = ContinentAdmin;
