@@ -118,7 +118,6 @@ define(function(require){
 				},
 				pager:true
 			});
-			me.player.length || me.player.fetch();
 		},
 		playerSummary:function(e){
 			var me = this;

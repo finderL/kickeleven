@@ -2,9 +2,10 @@
  * @author nttdocomo
  */
 define(function(require) {
-	var Player = require('./player');
-	return Player.extend({
-		model : taurus.model.Player,
+	var Players = require('./player');
+	var Player = require('../model/player');
+	return Players.extend({
+		model : Player,
 		paginator_core : {
 			type : 'GET',
 
@@ -13,7 +14,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api?method=nationsquad'
+			url : '/api/nationsquad/'
 		},
 		server_api : {
 			nation:function(){

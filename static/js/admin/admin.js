@@ -933,13 +933,17 @@ define(function(require, exports) {
 			name : 'home_score',
 			fieldLabel : i18n.__('Home Score'),
 			emptyText:'请输入数字',
-			value:0
+			value:0,
+            minValue: 0,
+            maxValue: 100
 		},{
 			cls:NumberProperty,
 			name : 'away_score',
 			fieldLabel : i18n.__('Away Score'),
 			emptyText:'请输入数字',
-			value:0
+			value:0,
+            minValue: 0,
+            maxValue: 100
 		}]
 	});
 	var site = new AdminSite;
