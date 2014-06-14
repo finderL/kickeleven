@@ -839,8 +839,7 @@ define(function(require, exports) {
 			multiSelect:true,
 			fieldLabel : i18n.__('Player'),
 			emptyText:i18n.__('Player'),
-			displayTpl:'<%_.each(value,function(item,index){%><%=item.short_name%><%if(index < value.length - 1){%>,<%}%><%})%>',
-			allowBlank:false
+			displayTpl:'<%_.each(value,function(item,index){%><%=item.short_name%><%if(index < value.length - 1){%>,<%}%><%})%>'
 		},{
 			cls:NumberProperty,
 			name : 'level',
