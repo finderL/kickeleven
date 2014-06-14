@@ -192,11 +192,6 @@ define(function(require, exports) {
 			sortable : false,
 			dataIndex : 'full_name'
 		},{
-			text : i18n.__('Capital City'),
-			flex : 1,
-			sortable : false,
-			dataIndex : 'capital_city'
-		},{
 			text : i18n.__('Nationality'),
 			flex : 1,
 			sortable : false,
@@ -229,12 +224,6 @@ define(function(require, exports) {
 			name : 'nationality',
 			fieldLabel : i18n.__('Nationality'),
 			emptyText:i18n.__('Nationality'),
-			allowBlank:false
-		},{
-			cls:TextProperty,
-			name : 'capital_city',
-			fieldLabel : i18n.__('Capital City'),
-			emptyText:i18n.__('Capital City'),
 			allowBlank:false
 		},{
 			cls:SelectProprty,
