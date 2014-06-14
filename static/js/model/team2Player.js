@@ -5,9 +5,9 @@ define(function(require) {
 	return Backbone.Model.extend({
 		url:function(){
 			if(this.isNew()){
-				return '/api?method=clubteam2player';
+				return '/api/teamplayer/';
 			} else {
-				return '/api?method=clubteam2player&id=' + this.id;
+				return '/api/teamplayer/?id=' + this.id;
 			}
 		},
 		parse : function(resp) {

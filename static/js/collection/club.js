@@ -14,7 +14,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api?method=club'
+			url : '/api/club/'
 		},
 		paginator_ui : {
 			// the lowest page index your API allows to be accessed

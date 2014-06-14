@@ -6,9 +6,9 @@ define(function(require){
 	return Backbone.Model.extend({
 		url:function(){
 			if(this.isNew()){
-				return '/api?method=continent';
+				return '/api/continent/';
 			} else {
-				return '/api?method=continent&id=' + this.id;
+				return '/api/continent/?id=' + this.id;
 			}
 		},
 		parse : function(resp) {

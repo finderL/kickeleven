@@ -14,7 +14,7 @@ define(function(require) {
 			cache : true,
 
 			// the URL (or base URL) for the service
-			url : '/api?method=city'
+			url : '/api/city/'
 		},
 		paginator_ui : {
 			// the lowest page index your API allows to be accessed

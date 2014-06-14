@@ -7,9 +7,9 @@ define(function(require) {
 	return taurus.klass('taurus.model.Club', Backbone.Model.extend({
 		url:function(){
 			if(this.isNew()){
-				return '/api?method=club';
+				return '/api/club/';
 			} else {
-				return '/api?method=club&id=' + this.id;
+				return '/api/club/?id=' + this.id;
 			}
 		},
 		parse : function(resp) {

@@ -18,9 +18,9 @@ define(function(require) {
 		}],*/
 		url:function(){
 			if(this.isNew()){
-				return '/api?method=player' + (this.isAdmin ? '&admin=1':'');
+				return '/api/player/' + (this.isAdmin ? '&admin=1':'');
 			} else {
-				return '/api?method=player&id=' + this.id + (this.isAdmin ? '&admin=1':'');
+				return '/api/player/?id=' + this.id + (this.isAdmin ? '&admin=1':'');
 			}
 		},
 		save:function(key, val, options){

@@ -479,7 +479,7 @@ def match(id=None, p=0, limit=20,admin=None):
     db.close()
     return n
 
-def clubteam2player(id=None, p=0, limit=20):
+def teamplayer(id=None, p=0, limit=20):
     if web.ctx.method in ('POST','PUT','PATCH'):
         i=web.data()
         i=json.loads(i)
@@ -521,7 +521,7 @@ class PublicApi:
                "match":match,
                "clubsquad":clubsquad,
                "nationsquad":nationsquad,
-               'clubteam2player':clubteam2player}
+               'teamplayer':teamplayer}
     # Private methods are externally accessible but whose design has not been
     # finalized yet and may change in the future.
     private_methods = ("entry_add_comment_with_entry_uuid","entry_get_comments_with_entry_uuid","keyvalue_put",

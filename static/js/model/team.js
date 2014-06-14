@@ -5,9 +5,9 @@ define(function(require) {
 	return Backbone.Model.extend({
 		url:function(){
 			if(this.isNew()){
-				return '/api?method=team' + (this.isAdmin ? '&admin=1':'');;
+				return '/api/team/?' + (this.isAdmin ? '&admin=1':'');;
 			} else {
-				return '/api?method=team&id=' + this.id + (this.isAdmin ? '&admin=1':'');
+				return '/api/team/?id=' + this.id + (this.isAdmin ? '&admin=1':'');
 			}
 		},
 		parse : function(resp) {

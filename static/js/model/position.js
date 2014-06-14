@@ -49,9 +49,9 @@ define(function(require) {
 	return taurus.klass('taurus.model.Position', Backbone.Model.extend({
 		url:function(){
 			if(this.isNew()){
-				return '/api?method=position';
+				return '/api/position/';
 			} else {
-				return '/api?method=position&id=' + this.id;
+				return '/api/position/?id=' + this.id;
 			}
 		},
 		parse : function(resp) {
