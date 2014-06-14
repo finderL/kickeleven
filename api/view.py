@@ -19,6 +19,7 @@ def paging(query, limit=None, p=None):
         limit = int(limit)
         offset = (int(p) - 1)*limit
         return query.offset(offset).limit(limit)
+    return query
 
 class Base:
     def render_api_response(self, rv, format="json", servertime=None):
