@@ -522,8 +522,7 @@ define(function(require, exports) {
 			cls:SelectProprty,
 			name : 'position',
 			collection:Position.extend({
-				server_api : {
-				}
+				server_api : {}
 			}),
 			displayField : 'position_name',
 			valueField:"id",

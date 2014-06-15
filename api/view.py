@@ -106,7 +106,7 @@ class Upload():
             'filename':filename
         })
 
-def nation(id=None, p=0, limit=20, admin=None):
+def nation(id=None, p=None, limit=None, admin=None):
     db = DB_Session()
     query = db.query(Nation)
     if web.ctx.method in ('POST','PUT','PATCH'):
@@ -127,9 +127,7 @@ def nation(id=None, p=0, limit=20, admin=None):
             nation = query.get(int(id))
             n = ResultWrapper(nation, nation=nation.to_api(admin))
         else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
-            nation = query.offset(offset).limit(limit).all()
+            nation = paging(query, limit, p)
             n = ResultWrapper(nation, nation=[v.to_api(admin) for v in nation],count=query.count())
     db.close()
     return n
@@ -218,12 +216,7 @@ def city(id=None, p=None, limit=None, admin=None):
             city = query.get(int(id))
             n = ResultWrapper(city, city=city.to_api(admin))
         else:
-            if limit is not None:
-                limit = int(limit)
-                offset = (int(p) - 1)*limit
-                city = query.offset(offset).limit(limit).all()
-            else:
-                city = query.all()
+            city = paging(query, limit, p)
             n = ResultWrapper(city, city=[v.to_api(admin) for v in city],count=query.count())
 #             n = {'player' : list,'count':results[0].players}
     db.close()
@@ -250,17 +243,12 @@ def position(id=None, p=None, limit=None, admin=None):
             position = query.get(int(id))
             n = ResultWrapper(position, position=position.to_api())
         else:
-            if limit is not None:
-                limit = int(limit)
-                offset = (int(p) - 1)*limit
-                position = query.offset(offset).limit(limit).all()
-            else:
-                position = query.all()
+            position = paging(query, limit, p)
             n = ResultWrapper(position, position=[v.to_api() for v in position],count=query.count())
     db.close()
     return n
 
-def club(id=None, p=0, limit=20, admin=None):
+def club(id=None, p=None, limit=None, admin=None):
     db = DB_Session()
     query = db.query(Club)
     if web.ctx.method in ('POST','PUT','PATCH'):
@@ -282,9 +270,7 @@ def club(id=None, p=0, limit=20, admin=None):
             club = query.get(int(id))
             n = ResultWrapper(club, club=club.to_api(admin))
         else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
-            club = query.offset(offset).limit(limit).all()
+            club = paging(query, limit, p)
             n = ResultWrapper(club, club=[v.to_api(admin) for v in club],count=query.count())
     db.close()
     return n
@@ -415,7 +401,7 @@ def nationsquad(nation=None, p=None, limit=None):
         db.close()
     return n
 
-def team(id=None, p=0, limit=20,admin=None):
+def team(id=None, p=None, limit=None,admin=None):
     db = DB_Session()
     query = db.query(Team)
     if web.ctx.method in ('POST','PUT','PATCH'):
@@ -444,9 +430,7 @@ def team(id=None, p=0, limit=20,admin=None):
             team['player'] = [v.to_api(admin) for v in player]
             n = ResultWrapper(team, team=team)
         else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
-            team = query.offset(offset).limit(limit).all()
+            team = paging(query, limit, p)
             n = ResultWrapper(team, team=[v.to_api(admin) for v in team],count=query.count())
     db.close()
     return n

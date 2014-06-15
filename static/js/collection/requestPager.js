@@ -3,12 +3,18 @@
  */
 define(function(require) {
 	require('backbone.paginator');
+	var bbVer = _.map(Backbone.VERSION.split('.'), function(digit) {
+		return parseInt(digit, 10);
+	});
 	return Backbone.Paginator.requestPager.extend({
 		search:function(attrs){
 			this.query = attrs;
 			this.pager();
 		},
-		sync : function(method, model, options) {
+		pager:function(options){
+			if ( !_.isObject(options) ) {
+				options = {};
+			}
 			var self = this,queryAttributes = {};
 			self.setDefaults();
 			// Some values could be functions, let's make sure
@@ -25,9 +31,6 @@ define(function(require) {
 				if(value)
 					queryAttributes[key] = value;
 			});
-			if(this.isAdmin){
-				queryAttributes.admin = 1;
-			}
 			
 			var queryOptions = _.clone(self.paginator_core);
 			_.each(queryOptions, function(value, key){
@@ -36,14 +39,6 @@ define(function(require) {
 					value = value();
 				}
 				queryOptions[key] = value;
-			});
-			
-			// Create default values if no others are specified
-			queryOptions = _.defaults(queryOptions, {
-				timeout: 60000,
-				cache: false,
-				type: 'GET',
-				dataType: 'jsonp'
 			});
 			
 			// Allows the passing in of {data: {foo: 'bar'}} at request time to overwrite server_api defaults
@@ -58,13 +53,15 @@ define(function(require) {
 				processData: false,
 				url: _.result(queryOptions, 'url')
 			}, options);
-			
-			var bbVer = Backbone.VERSION.split('.');
-			var promiseSuccessFormat = !(parseInt(bbVer[0], 10) === 0 &&
-                                   parseInt(bbVer[1], 10) === 9 &&
-                                   parseInt(bbVer[2], 10) === 10);
-                                   
-            var success = queryOptions.success;
+			return this.fetch( queryOptions );
+		},
+		sync : function(method, model, options) {
+			var queryOptions = options,
+			promiseSuccessFormat = !(bbVer[0] === 0 &&
+		                                   bbVer[1] === 9 &&
+		                                   bbVer[2] === 10),
+		    isBeforeBackbone_1_0 = bbVer[0] === 0,
+		    success = queryOptions.success;
             queryOptions.success = function ( resp, status, xhr ) {
             	if ( success ) {
             		// This is to keep compatibility with Backbone 0.9.10
@@ -88,12 +85,24 @@ define(function(require) {
             		model.trigger( 'error', model, xhr, queryOptions );
             	}
             };
+			if(this.isAdmin){
+				queryAttributes.admin = 1;
+			}
+			
+			// Create default values if no others are specified
+			/*queryOptions = _.defaults(queryOptions, {
+				timeout: 60000,
+				cache: false,
+				type: 'GET',
+				dataType: 'jsonp'
+			});*/
+			return Backbone.Collection.prototype.sync.call(this, method, model, queryOptions);
             
-            var xhr = queryOptions.xhr = $.ajax( queryOptions );
+            /*var xhr = queryOptions.xhr = $.ajax( queryOptions );
             if ( model && model.trigger ) {
             	model.trigger('request', model, xhr, queryOptions);
             }
-            return xhr;
+            return xhr;*/
 		}
 	});
 });
