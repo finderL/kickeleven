@@ -96,7 +96,7 @@ define(function(require, exports) {
 					collection : collection,
 					renderTo:me.container.empty()
 				});
-				collection.fetch();
+				collection.pager();
 			});
 		},
 		add_view:function(){

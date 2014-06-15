@@ -86,7 +86,13 @@ define(function(require) {
             	}
             };
 			if(this.isAdmin){
-				queryAttributes.admin = 1;
+				if(queryOptions.data){
+					queryOptions.data['admin'] = 1;
+				} else {
+					queryOptions.data = {
+						'admin' : 1
+					};
+				}
 			}
 			
 			// Create default values if no others are specified

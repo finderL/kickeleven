@@ -245,7 +245,7 @@ class Player(TranslationModel):
     right_foot = Column(TINYINT(2))
     avatar = Column(CHAR(45))
     created_at = Column(DateTime, default=datetime.datetime.now)
-    updated_at = Column(DateTime, onupdate=datetime.datetime.now)
+    updated_at = Column(DateTime, onupdate=datetime.datetime.now, default=datetime.datetime.now)
     translation = relationship('PlayerTranslation', backref="player_ref", lazy="dynamic")
     player2position = relationship("PlayerPosition", backref="player_ref", cascade='all, delete-orphan')
     
