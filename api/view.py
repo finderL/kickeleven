@@ -328,6 +328,9 @@ def player(id=None, p=None, limit=None, admin=None, action=None, **kwargs):
             n = ResultWrapper(player, player=player)
         else:
             player = query
+            if kwargs.has_key('nation'):
+                nation = kwargs['nation']
+                player = query.join(TeamPlayer, Player.id == TeamPlayer.player_id).join(Team,Team.id == TeamPlayer.team_id).filter(Team.owner_id == int(nation) and Team.type == 1)
             if action is not None:
                 for column in class_mapper(Player).columns:
                     column_name = column.key
@@ -435,7 +438,7 @@ def team(id=None, p=None, limit=None,admin=None):
     db.close()
     return n
 
-def match(id=None, p=0, limit=20,admin=None):
+def match(id=None, p=None, limit=None,admin=None):
     db = DB_Session()
     query = db.query(Match)
     if web.ctx.method in ('POST','PUT','PATCH'):
@@ -457,9 +460,7 @@ def match(id=None, p=0, limit=20,admin=None):
             match = match.to_api(admin)
             n = ResultWrapper(match, match=match)
         else:
-            limit = int(limit)
-            offset = (int(p) - 1)*limit
-            match = query.offset(offset).limit(limit).all()
+            match = paging(query, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()
     return n

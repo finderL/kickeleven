@@ -38,6 +38,9 @@ define(function(require) {
 			p : function() {
 				return this.currentPage;
 			},
+			limit:function() {
+				return this.perPage;
+			},
 			nation : function() {
 				return this.nation ? this.nation.id : undefined;
 			}

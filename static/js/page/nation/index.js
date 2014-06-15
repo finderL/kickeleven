@@ -6,6 +6,7 @@ define(function(require){
 	var Base = require('../base'),
 	Table = require('../../taurus/panel/table'),
 	Squad = require('../../collection/nationSquad'),
+	Player = require('../../collection/player'),
 	Nation = require('../../model/nation'),
 	Panel = require('../../panel/nationPanel'),
 	i18n = require('../../i18n/{locale}');
@@ -19,7 +20,7 @@ define(function(require){
 			this.model = new Nation({
 				id:options.id
 			});
-			delete options.id;
+			//delete options.id;
 			Base.prototype.initialize.apply(this,[options]);
 			this.listPlayer();
 			this.model.fetch({
@@ -33,8 +34,7 @@ define(function(require){
 		},
 		listPlayer:function(){
 			var me = this;
-			me.collection = me.collection || new Squad;
-			me.collection.nation = this.model;
+			me.collection = me.collection || new Player;
 			new Table({
 				loading:true,
 				header:false,
@@ -74,7 +74,11 @@ define(function(require){
 					me.collection.fetch();
 				}
 			});
-			//me.collection.length || me.collection.fetch();
+			me.collection.fetch({
+				data:{
+					nation:this.id
+				}
+			});
 		},
 		playerSummary:function(e){
 			var me = this;

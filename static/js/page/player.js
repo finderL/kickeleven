@@ -20,7 +20,8 @@ define(function(require){
 		},
 		listMatch:function(){
 			var me = this;
-			me.match = me.match || new Match;
+			me.match = new Match;
+			me.match.pager();
 			new Table({
 				loading:true,
 				header:false,
@@ -60,11 +61,11 @@ define(function(require){
 				renderTo:me.$el.find('.col-lg-3').empty(),
 				pager:true
 			});
-			me.match.length || me.match.fetch();
 		},
 		listPlayer:function(){
 			var me = this;
-			me.player = me.player || new Player;
+			me.player = new Player;
+			me.player.pager();
 			new Table({
 				loading:true,
 				header:false,
