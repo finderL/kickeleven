@@ -465,32 +465,29 @@ def match(id=None, p=None, limit=None,admin=None):
     db.close()
     return n
 
-def teamplayer(id=None, p=0, limit=20):
+def teamplayer(id=None, p=None, limit=None, admin=None):
+    db = DB_Session()
+    query = db.query(TeamPlayer)
     if web.ctx.method in ('POST','PUT','PATCH'):
-        i=web.data()
-        i=json.loads(i)
+        i=json.loads(web.data())
         if web.ctx.method in ('PUT','PATCH'):
-            n = db.update('team2player', where="id = " + id, **i)
+            teamplayer = query.get(int(id))
+            for name,value in i.items():
+                setattr(teamplayer, name, value)
         else:
-            id = n = db.insert('team2player', **i)
+            teamplayer = TeamPlayer(**i)
+            db.add(teamplayer)
+            db.flush()
+            db.refresh(teamplayer)
+        db.commit()
+        n = ResultWrapper(teamplayer, teamplayer=teamplayer.to_api(admin))
     else:
         if id:
-#             n = db.select('player', where="id = " + id)
-            n = db.query('SELECT * FROM team2player WHERE team2player.id='+id)
-            team2player = n.list()[0]
-            n = {'team2player' : team2player}
+            teamplayer = query.get(int(id))
+            n = ResultWrapper(teamplayer, teamplayer=teamplayer.to_api(admin))
         else:
-            offset = (int(p) - 1)*int(limit)
-            #n = db.select('player', limit=int(limit), offset=offset)
-            n = db.query('SELECT * FROM team2player LIMIT '+limit+' OFFSET ' + str(offset) + '')
-            list = []
-            for team2player in n.list():
-                team2player.team = db.query('SELECT * FROM team WHERE team.id=' + str(team2player.team)).list()[0]
-                team2player.player = db.query('SELECT * FROM player WHERE player.id=' + str(team2player.player)).list()[0]
-                list.append(team2player)
-            #n = db.query('SELECT *,GROUP_CONCAT(position_name) AS position FROM player LEFT JOIN player2position ON player.id = player2position.player LEFT JOIN position ON player2position.position = position.id')
-            results = db.query("SELECT COUNT(*) AS teams FROM team2player")
-            n = {'team2player' : list,'count':results[0].teams}
+            teamplayer = paging(query, limit, p)
+            n = ResultWrapper(teamplayer, teamplayer=[v.to_api(admin) for v in teamplayer],count=query.count())
     return n
 
 class PublicApi:

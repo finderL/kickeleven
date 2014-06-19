@@ -13,7 +13,7 @@ define(function(require) {
 		parse : function(resp) {
 			//if(resp.results && resp.results)
 			if(resp.rv){
-				return resp.rv.team2player;
+				return resp.rv.teamplayer;
 			}
 			return resp;
 		}

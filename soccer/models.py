@@ -215,13 +215,21 @@ class Team(ApiModel):
         db.close()
         return o
 
-class TeamPlayer(BaseModel):
+class TeamPlayer(ApiModel):
     __tablename__ = 'teamplayer'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    team_id = Column(Integer, ForeignKey('team.id'), primary_key=True)
-    player_id = Column(Integer, ForeignKey('player.id'), primary_key=True)
+    team_id = Column(Integer, ForeignKey('team.id'))
+    player_id = Column(Integer, ForeignKey('player.id'))
     player = relationship("Player", backref="teamplayer")
+    
+    def to_api(self,admin):
+        db = DB_Session()
+        o = super(TeamPlayer, self).to_api()
+        o['player'] = self.player.to_api(admin)
+        o['team'] = self.team.to_api(admin)
+        db.close()
+        return o
 
 class PlayerPosition(BaseModel):
     __tablename__ = 'player2position'

@@ -17,6 +17,7 @@ define(function(require, exports) {
 	NationTranslation = require('../collection/nationTranslation'),
 	City = require('../collection/city'),
 	Team = require('../collection/team'),
+	TeamPlayer = require('../collection/team2Player'),
 	Match = require('../collection/match'),
 	Position = require('../collection/position'),
 	Club = require('../collection/club'),
@@ -932,6 +933,47 @@ define(function(require, exports) {
             minValue: 0,
             maxValue: 100
 		}]
+	}),
+	TeamPlayerAdmin = ModelAdmin.extend({
+		model_name : 'TeamPlayer',
+		collection : TeamPlayer,
+		columns : [{
+			text : i18n.__('Team'),
+			flex : 1,
+			sortable : false,
+			renderer : function(value,data) {
+				if(value.type == 2){
+					return '<a data-item-id="'+data.id+'" href="/admin/#teamplayer/'+data.id+'/">'+value.owner.club_name+'</a>';
+				}
+				return '<a data-item-id="'+data.id+'" href="/admin/#teamplayer/'+data.id+'/">'+value.owner.full_name+'</a>';
+			},
+			dataIndex : 'team'
+		},{
+			text : i18n.__('Player'),
+			flex : 1,
+			sortable : false,
+			renderer : function(value,data) {
+				return '<a data-item-id="'+data.id+'" href="/admin/#team/'+data.id+'/">'+value.full_name+'</a>';
+			},
+			dataIndex : 'player'
+		}],
+		fields:[{
+			cls:SelectProprty,
+			name : 'team_id',
+			displayField : 'team_name',
+			valueField:"id",
+			collection:Team,
+			fieldLabel : i18n.__('Team'),
+			emptyText:i18n.__('Team')
+		},{
+			cls:SelectProprty,
+			name : 'player_id',
+			displayField : 'full_name',
+			valueField:"id",
+			collection:Player,
+			fieldLabel : i18n.__('Player'),
+			emptyText:i18n.__('Player')
+		}]
 	});
 	var site = new AdminSite;
 	taurus.klass('k11.admin.continent',new ContinentAdmin);
@@ -945,6 +987,7 @@ define(function(require, exports) {
 	taurus.klass('k11.admin.clubtranslation',new ClubTranslationAdmin);
 	//taurus.klass('k11.admin.clubteam',new ClubTeamAdmin);
 	taurus.klass('k11.admin.team',new TeamAdmin);
+	taurus.klass('k11.admin.teamplayer',new TeamPlayerAdmin);
 	taurus.klass('k11.admin.match',new MatchAdmin);
 	//taurus.klass('k11.admin.clubteam2player',new ClubTeam2PlayerAdmin);
 	exports.site = site;

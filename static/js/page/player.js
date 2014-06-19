@@ -29,33 +29,47 @@ define(function(require){
 				uiClass:'player-list flex-height',
 				title:i18n.__('Match'),
 				columns : [{
-					text : i18n.__('Match Date'),
+					text : i18n.__('Date'),
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return moment(value).format('YYYY-MM-DD HH:mm:ss');
+						return moment(value).format('DD MMM').toUpperCase();
 					},
 					dataIndex : 'match_date'
 				},{
-					text : i18n.__('Team'),
+					text : i18n.__('Home'),
 					sortable : false,
-					width:290,
 					renderer : function(value,data) {
-						var home = data.home_team, away = data.away_team, html = '';
+						var home = data.home_team, html = '';
 						if(home.type == 2){
-							html += '<a data-item-id="'+data.id+'" href="/admin/#club/'+home.owner.id+'/">'+home.owner.club_name+'</a> ';
+							html += '<a data-item-id="'+data.id+'" href="/admin/#club/'+home.owner.id+'/"><img src="/static/tmp/'+home.owner.small_flag+'" /></a> ';
 						} else {
-							html += '<a data-item-id="'+data.id+'" href="/admin/#nation/'+home.owner.id+'/">'+home.owner.full_name+'</a> ';
-						}
-						html += data.home_score + ' - ' + data.away_score;
-						if(away.type == 2){
-							html += ' <a data-item-id="'+data.id+'" href="/admin/#club/'+away.owner.id+'/">'+away.owner.club_name+'</a>';
-						} else {
-							html += ' <a data-item-id="'+data.id+'" href="/admin/#nation/'+away.owner.id+'/">'+away.owner.full_name+'</a>';
+							html += '<a data-item-id="'+data.id+'" href="/admin/#nation/'+home.owner.id+'/"><img src="/static/tmp/'+home.owner.small_flag+'" /></a> ';
 						}
 						return html;
 					},
 					dataIndex : 'home_team'
+				},{
+					text : i18n.__('Time'),
+					flex : 1,
+					sortable : false,
+					renderer : function(value,data) {
+						return moment(value).format('HH:mm');
+					},
+					dataIndex : 'match_date'
+				},{
+					text : i18n.__('Away'),
+					sortable : false,
+					renderer : function(value,data) {
+						var away = data.away_team, html = '';
+						if(away.type == 2){
+							html += ' <a data-item-id="'+data.id+'" href="/admin/#club/'+away.owner.id+'/"><img src="/static/tmp/'+away.owner.small_flag+'" /></a>';
+						} else {
+							html += ' <a data-item-id="'+data.id+'" href="/admin/#nation/'+away.owner.id+'/"><img src="/static/tmp/'+away.owner.small_flag+'" /></a>';
+						}
+						return html;
+					},
+					dataIndex : 'away_team'
 				}],
 				collection : me.match,
 				renderTo:me.$el.find('.col-lg-3').empty(),
