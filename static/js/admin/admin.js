@@ -646,7 +646,7 @@ define(function(require, exports) {
 			allowBlank:false
 		},{
 			cls:SelectProprty,
-			name : 'nation',
+			name : 'nation_id',
 			collection:new Nation,
 			displayField : 'short_name',
 			valueField:"id",
