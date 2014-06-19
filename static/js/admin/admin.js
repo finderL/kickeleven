@@ -647,7 +647,7 @@ define(function(require, exports) {
 		},{
 			cls:SelectProprty,
 			name : 'nation_id',
-			collection:new Nation,
+			collection:Nation,
 			displayField : 'short_name',
 			valueField:"id",
 			fieldLabel : i18n.__('Nation'),
