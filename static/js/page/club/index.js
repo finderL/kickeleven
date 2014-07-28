@@ -5,9 +5,8 @@ define(function(require){
 	require('moment');
 	var Base = require('../base'),
 	Table = require('../../taurus/panel/table'),
-	Squad = require('../../collection/clubSquad'),
+	Team = require('../../collection/team'),
 	Club = require('../../model/club'),
-	ClubPanel = require('../../panel/clubPanel'),
 	i18n = require('../../i18n/zh-cn');
 	return Base.extend({
 		events:{
@@ -15,94 +14,73 @@ define(function(require){
 		},
 		tpl:'<div class="col-lg-3 flex-height"></div><div class="col-lg-9 flex-height"></div>',
 		initialize:function(options){
+			Base.prototype.initialize.apply(this,arguments);
 			var me = this;
 			this.model = new Club({
 				id:options.id
 			});
-			delete options.id;
-			Base.prototype.initialize.apply(this,[options]);
-			this.listClub();
-			this.model.fetch({
-				success:function(){
-					new ClubPanel({
-						model:me.model,
-						renderTo:me.$el.find('.col-lg-3').empty()
-					});
+			this.clubTeam = new Team();
+			this.clubTeam.fetch({
+				data:{
+					club:options.id,
+					type:2
+				}
+			});
+			/*this.competition = new Competition();
+			this.competition.fetch({
+				data:{
+					nation:options.id
+				}
+			});
+			this.listCompetition();*/
+			this.listNationTeam();
+		},
+		listCompetition:function(){
+			var me = this;
+			new Table({
+				loading:true,
+				refreshable:true,
+				uiClass:'player-list flex-height',
+				title:i18n.__('National leagues and cup competition'),
+				columns : [{
+					text : i18n.__('Competition'),
+					flex : 1,
+					sortable : false,
+					renderer : function(value,data) {
+						return '<a data-item-id="'+data.id+'" href="/#competition/'+data.id+'/">'+value+'</a>';
+					},
+					dataIndex : 'name'
+				}],
+				collection : this.competition,
+				renderTo:me.$el.find('.col-lg-9').empty(),
+				onRefresh:function(){
+					me.collection.fetch();
 				}
 			});
 		},
-		listClub:function(){
+		listNationTeam:function(e){
 			var me = this;
-			me.collection = me.collection || new Squad;
-			me.collection.club = this.model;
 			new Table({
 				loading:true,
 				header:false,
 				refreshable:true,
 				uiClass:'player-list flex-height',
-				title:i18n.__('Player'),
+				title:i18n.__('Club Teams'),
 				columns : [{
-					text : i18n.__('Full Name'),
+					text : i18n.__('National Teams'),
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#player/'+data.id+'/">'+value+'</a>';
+						return '<a data-item-id="'+data.id+'" href="/#team/'+data.id+'/">'+value+'</a>';
 					},
-					dataIndex : 'full_name'
-				}, {
-					text : i18n.__('Nation'),
-					sortable : false,
-					width:200,
-					renderer : function(value) {
-						var result = [];
-						if(value){
-							return value.short_name;
-						} else {
-							return '-';
-						}
-					},
-					dataIndex : 'nation'
-				}, {
-					text : i18n.__('Height'),
-					sortable : false,
-					width:100,
-					dataIndex : 'height'
-				}, {
-					text : i18n.__('Weight'),
-					sortable : false,
-					width:100,
-					dataIndex : 'weight'
-				}, {
-					text : 'Age',
-					sortable : false,
-					width:100,
-					renderer : function(value) {
-						return taurus.Date.getAge(value, 'yyyy-mm-dd');
-					},
-					dataIndex : 'date_of_birth'
+					dataIndex : 'team_name'
 				}],
-				collection : me.collection,
-				renderTo:me.$el.find('.col-lg-9').empty(),
+				collection : this.clubTeam,
+				renderTo:me.$el.find('.col-lg-3').empty(),
 				onRefresh:function(){
 					me.collection.fetch();
-				},
-				pager:true
+				}
 			});
-			//me.collection.length || me.collection.fetch();
-		},
-		playerSummary:function(e){
-			var me = this;
-			require.async(['../../widget/playerDialog'],function(Panel){
-				var model = me.collection.get($(e.target).attr('data-item-id'));
-				(new Panel({
-					width:400,
-					title:model.get('full_name'),
-					model:model,
-					renderTo:taurus.$body
-				})).show();
-				model.fetch();
-			});
-			return false;
 		}
 	});
 });

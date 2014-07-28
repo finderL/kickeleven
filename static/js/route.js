@@ -8,7 +8,7 @@ define(function(require) {
 	route = Backbone.Router.prototype.route,
 	ga = ga || function(){};
 	return Backbone.Router.extend({
-		container : taurus.$body.find('>.container-fluid'),
+		container : taurus.$body.find('>.container'),
 		initialize : function() {
 			this.routeMethods = {};
 			this.bind('all', this._trackPageview);
@@ -23,8 +23,10 @@ define(function(require) {
 			"player" : "player",
 			"club" : "club",
 			"club/:id/" : "club",
+			"team/:id/" : "team",
 			"nation" : "nation",
 			"nation/:id/" : "nation",
+			"competition/:id/" : "competition",
 			":page/" : "page", // #playerlist
 			":page/:id/" : "overview" // #contractlist
 		}),
@@ -86,9 +88,39 @@ define(function(require) {
 				new Page(options);
 			});
 		},
+		team:function(id){
+			var me = this,
+			page = id ? "./page/team/index" : "./page/team",
+			options = {
+				renderTo : me.container.empty()
+			};
+			if(id){
+				$.extend(options,{
+					id:id
+				});
+			}
+			require.async(page, function(Page) {
+				new Page(options);
+			});
+		},
 		nation:function(id){
 			var me = this,
 			page = id ? "./page/nation/index" : "./page/nation",
+			options = {
+				renderTo : me.container.empty()
+			};
+			if(id){
+				$.extend(options,{
+					id:id
+				});
+			}
+			require.async(page, function(Page) {
+				new Page(options);
+			});
+		},
+		competition:function(id){
+			var me = this,
+			page = id ? "./page/competition/index" : "./page/competition",
 			options = {
 				renderTo : me.container.empty()
 			};

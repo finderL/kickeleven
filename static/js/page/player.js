@@ -10,12 +10,12 @@ define(function(require){
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
 		events:{
-			'click .player-list a':'playerSummary'
+			'click .player-list a':'playerProfileDialog'
 		},
-		tpl:'<div class="col-lg-3 flex-height"></div><div class="col-lg-9 flex-height"></div>',
+		tpl:'<div class="col-lg-12"></div>',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
-			this.listMatch();
+			//this.listMatch();
 			this.listPlayer();
 		},
 		listMatch:function(){
@@ -26,7 +26,7 @@ define(function(require){
 				loading:true,
 				header:false,
 				refreshable:true,
-				uiClass:'player-list flex-height',
+				uiClass:'player-list',
 				title:i18n.__('Match'),
 				columns : [{
 					text : i18n.__('Date'),
@@ -42,9 +42,9 @@ define(function(require){
 					renderer : function(value,data) {
 						var home = data.home_team, html = '';
 						if(home.type == 2){
-							html += '<a data-item-id="'+data.id+'" href="/admin/#club/'+home.owner.id+'/"><img src="/static/tmp/'+home.owner.small_flag+'" /></a> ';
+							html += '<a data-player-id="'+data.id+'" href="/admin/#club/'+home.owner.id+'/"><img src="/static/tmp/'+home.owner.small_flag+'" /></a> ';
 						} else {
-							html += '<a data-item-id="'+data.id+'" href="/admin/#nation/'+home.owner.id+'/"><img src="/static/tmp/'+home.owner.small_flag+'" /></a> ';
+							html += '<a data-player-id="'+data.id+'" href="/admin/#nation/'+home.owner.id+'/"><img src="/static/tmp/'+home.owner.small_flag+'" /></a> ';
 						}
 						return html;
 					},
@@ -72,7 +72,7 @@ define(function(require){
 					dataIndex : 'away_team'
 				}],
 				collection : me.match,
-				renderTo:me.$el.find('.col-lg-3').empty(),
+				renderTo:me.$el.find('.col-lg-12').empty(),
 				pager:true
 			});
 		},
@@ -84,16 +84,16 @@ define(function(require){
 				loading:true,
 				header:false,
 				refreshable:true,
-				uiClass:'player-list flex-height',
+				uiClass:'player-list',
 				title:i18n.__('Player'),
 				columns : [{
-					text : i18n.__('Full Name'),
+					text : i18n.__('Name'),
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#player/'+data.id+'/">'+value+'</a>';
+						return '<a data-player-id="'+data.id+'" href="/#player/'+data.id+'/">'+value+'</a>';
 					},
-					dataIndex : 'full_name'
+					dataIndex : 'name'
 				}, {
 					text : i18n.__('Nation'),
 					sortable : true,
@@ -101,7 +101,7 @@ define(function(require){
 					renderer : function(value) {
 						var result = [];
 						if(value){
-							return value.short_name;
+							return value.full_name;
 						} else {
 							return '-';
 						}
@@ -113,12 +113,7 @@ define(function(require){
 					width:50,
 					dataIndex : 'height'
 				}, {
-					text : i18n.__('Weight'),
-					sortable : true,
-					width:50,
-					dataIndex : 'weight'
-				}, {
-					text : '年龄',
+					text : i18n.__('Age'),
 					sortable : true,
 					width:50,
 					renderer : function(value) {
@@ -127,21 +122,21 @@ define(function(require){
 					dataIndex : 'date_of_birth'
 				}],
 				collection : me.player,
-				renderTo:me.$el.find('.col-lg-9').empty(),
+				renderTo:me.$el.find('.col-lg-12').empty(),
 				onRefresh:function(){
 					this.collection.fetch();
 				},
 				pager:true
 			});
 		},
-		playerSummary:function(e){
+		playerProfileDialog:function(e){
 			var me = this;
-			require.async(['../widget/playerDialog'],function(Panel){
-				var model = me.player.get($(e.target).attr('data-item-id'));
-				(new Panel({
-					width:400,
-					title:model.get('full_name'),
-					model:me.player.get($(e.target).attr('data-item-id')),
+			require.async(['../widget/playerProfilePopDialog'],function(Dialog){
+				var model = me.player.get($(e.currentTarget).attr('data-player-id'));
+				(new Dialog({
+					width:590,
+					title:i18n.__('Personal Profile'),
+					model:model,
 					renderTo:taurus.$body
 				})).show();
 				model.fetch();

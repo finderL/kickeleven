@@ -3,6 +3,7 @@
  */
 define(function(require){
 	require('./taurus/taurus');
+	var Menu = require('./taurus/menu/menu');
 	var Router = require('./route');
 	var panel,
 		clubCreatePanel,
@@ -21,6 +22,19 @@ define(function(require){
 		form.submit();
 		return false;
 	});
+	new Menu({
+		triggerEl:$('.navbar-collapse > .navbar-nav:eq(1) > li:eq(2) > a'),
+		menus:[{
+			text:'National',
+			menus:[{
+				text:'Premier League',
+				href:'/#competition/1/'
+			},{
+				text:'La Liga',
+				href:'/#competition/2/'
+			}]
+		}]
+	})
 	new Router;
 	Backbone.history.start();
 });

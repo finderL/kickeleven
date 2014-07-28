@@ -8,13 +8,16 @@ Created on 2011-9-12
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
 from sqlalchemy.orm import class_mapper
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Team, TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Match
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, CompetitionTeam,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Match
 from settings import TEMP_DIR
 from sqlalchemy.types import String
+from sqlalchemy import desc
 
 PAGE_ARGS = ('limit','p')
 
 def paging(query, limit=None, p=None):
+    if p is None:
+        p = 1
     if limit is not None:
         limit = int(limit)
         offset = (int(p) - 1)*limit
@@ -327,10 +330,15 @@ def player(id=None, p=None, limit=None, admin=None, action=None, **kwargs):
             player['position'] = [v.to_api() for v in position]
             n = ResultWrapper(player, player=player)
         else:
-            player = query
+            player = query.filter(Player.height > 100)
             if kwargs.has_key('nation'):
                 nation = kwargs['nation']
                 player = query.join(TeamPlayer, Player.id == TeamPlayer.player_id).join(Team,Team.id == TeamPlayer.team_id).filter(Team.owner_id == int(nation) and Team.type == 1)
+            if kwargs.has_key('team'):
+                team = kwargs['team']
+                subqueryTransfer = db.query(Transfer).filter(Transfer.transfer_date <= datetime.datetime.now().date()).order_by(desc(Transfer.transfer_date)).subquery()
+                ssubqueryTransfer = db.query(subqueryTransfer.c.taking_team_id,subqueryTransfer.c.player_id,subqueryTransfer.c.transfer_date).group_by(subqueryTransfer.c.player_id).order_by(desc(subqueryTransfer.c.transfer_date)).subquery()
+                player = query.join(ssubqueryTransfer, ssubqueryTransfer.c.player_id == Player.id).filter(ssubqueryTransfer.c.taking_team_id == int(team))
             if action is not None:
                 for column in class_mapper(Player).columns:
                     column_name = column.key
@@ -404,7 +412,37 @@ def nationsquad(nation=None, p=None, limit=None):
         db.close()
     return n
 
-def team(id=None, p=None, limit=None,admin=None):
+def competition(id=None, p=None, limit=None,admin=None, **kwargs):
+    db = DB_Session()
+    query = db.query(Competition)
+    if web.ctx.method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if web.ctx.method in ('PUT','PATCH'):
+            competition = query.get(int(id))
+            for name,value in i.items():
+                setattr(competition, name, value)
+        else:
+            competition = Competition(**i)
+            db.add(competition)
+            db.flush()
+            db.refresh(competition)
+        db.commit()
+        n = ResultWrapper(competition, competition=competition.to_api())
+    else:
+        if id:
+            competition = query.get(int(id))
+            competition = competition.to_api()
+            n = ResultWrapper(competition, competition=competition)
+        else:
+            if kwargs.has_key('nation'):
+                nation = kwargs['nation']
+                competition = query.filter(Competition.nation_id == int(nation))
+            competition = paging(competition, limit, p)
+            n = ResultWrapper(competition, competition=[v.to_api() for v in competition],count=query.count())
+    db.close()
+    return n
+
+def team(id=None, p=None, limit=None,admin=None, **kwargs):
     db = DB_Session()
     query = db.query(Team)
     if web.ctx.method in ('POST','PUT','PATCH'):
@@ -428,12 +466,19 @@ def team(id=None, p=None, limit=None,admin=None):
     else:
         if id:
             team = query.get(int(id))
-            player = [v.player for v in team.teamplayer]
             team = team.to_api(admin)
-            team['player'] = [v.to_api(admin) for v in player]
             n = ResultWrapper(team, team=team)
         else:
-            team = paging(query, limit, p)
+            if kwargs.has_key('nation'):
+                nation = kwargs['nation']
+                team = query.filter(Team.owner_id == int(nation), Team.type == 1)
+            if kwargs.has_key('club'):
+                club = kwargs['club']
+                team = query.filter(Team.owner_id == int(club), Team.type == 2)
+            if kwargs.has_key('competition'):
+                competition = kwargs['competition']
+                team = query.join(CompetitionTeam, Team.id == CompetitionTeam.team_id).filter(CompetitionTeam.competition_id == int(competition))
+            team = paging(team, limit, p)
             n = ResultWrapper(team, team=[v.to_api(admin) for v in team],count=query.count())
     db.close()
     return n
@@ -463,6 +508,37 @@ def match(id=None, p=None, limit=None,admin=None):
             match = paging(query, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()
+    return n
+
+def transfer(id=None, p=None, limit=None, admin=None, **kwargs):
+    db = DB_Session()
+    query = db.query(Transfer)
+    if web.ctx.method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if web.ctx.method in ('PUT','PATCH'):
+            transfer = query.get(int(id))
+            for name,value in i.items():
+                setattr(transfer, name, value)
+        else:
+            transfer = Transfer(**i)
+            db.add(transfer)
+            db.flush()
+            db.refresh(transfer)
+        db.commit()
+        n = ResultWrapper(transfer, transfer=transfer.to_api(admin))
+    else:
+        if id:
+            transfer = query.get(int(id))
+            n = ResultWrapper(transfer, transfer=transfer.to_api(admin))
+        else:
+            if kwargs.has_key('player'):
+                player_id = kwargs['player']
+                transfer = query.filter(Transfer.player_id == int(player_id))
+            if kwargs.has_key('taking_team'):
+                taking_team_id = kwargs['taking_team']
+                transfer = query.filter(Transfer.taking_team_id == int(taking_team_id))
+            transfer = paging(transfer, limit, p)
+            n = ResultWrapper(transfer, transfer=[v.to_api() for v in transfer],count=transfer.count())
     return n
 
 def teamplayer(id=None, p=None, limit=None, admin=None):
@@ -495,6 +571,7 @@ class PublicApi:
                "nationtranslation":nationtranslation,
                "nation":nation,
                "city":city,
+               "competition":competition,
                "position":position,
                "player":player,
                "playertranslation":playertranslation,
@@ -504,7 +581,8 @@ class PublicApi:
                "match":match,
                "clubsquad":clubsquad,
                "nationsquad":nationsquad,
-               'teamplayer':teamplayer}
+               'teamplayer':teamplayer,
+               'transfer':transfer}
     # Private methods are externally accessible but whose design has not been
     # finalized yet and may change in the future.
     private_methods = ("entry_add_comment_with_entry_uuid","entry_get_comments_with_entry_uuid","keyvalue_put",

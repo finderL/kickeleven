@@ -11,7 +11,7 @@ from db.models import BaseModel,DB_Session
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.types import CHAR, String, Date, DateTime, Boolean, Integer
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship,backref,object_session
 from sqlalchemy.dialects.mysql import TINYINT
 
 def parseAcceptLanguage(acceptLanguage):
@@ -103,13 +103,10 @@ class Nation(TranslationModel):
 
     id = Column(TINYINT(1), primary_key=True, autoincrement=True)
     full_name = Column(String(60)) # or Column(String(30))
-    short_name = Column(String(30)) # or Column(String(30))
-    nationality = Column(String(30))
     continent_id = Column(TINYINT(3), ForeignKey('continent.id'))
     normal_flag = Column(CHAR(45))
     small_flag = Column(CHAR(45))
     logo = Column(CHAR(45))
-    player = relationship("Player", backref="nationality")
     translation = relationship("NationTranslation", backref="nation", lazy="dynamic")
     club = relationship("Club", backref="nation", lazy="dynamic")
     city = relationship("City", backref="nation", lazy="dynamic")
@@ -123,8 +120,6 @@ class NationTranslation(Translation):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     full_name = Column(String(60)) # or Column(String(30))
-    short_name = Column(String(30)) # or Column(String(30))
-    nationality = Column(String(30))
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
 
 class City(TranslationModel):
@@ -153,16 +148,37 @@ class CityTranslation(Translation):
     city_name = Column(String(60))
     city_id = Column(Integer, ForeignKey('city.id'))
 
+class CompetitionCategory(ApiModel):
+    __tablename__ = 'competition_category'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(20))
+
+class CompetitionTeam(BaseModel):
+    __tablename__ = 'competitionteam'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    competition_id = Column(Integer, ForeignKey('competition.id'))
+    team_id = Column(Integer, ForeignKey('team.id'))
+
+class Competition(ApiModel):
+    __tablename__ = 'competition'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50))
+    nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
+    category_id = Column(TINYINT(2), ForeignKey('competition_type.id'))
+    type = Column(Boolean)
+    teams = relationship('Team', secondary=CompetitionTeam.__table__, backref=backref('competitions'))
+
 class Club(TranslationModel):
     __tablename__ = 'club'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    club_name = Column(String(60)) # or Column(String(30))
-    nickname = Column(String(30)) # or Column(String(30))
-    year_founded = Column(Date())
+    name = Column(String(60)) # or Column(String(30))
+    foundation = Column(Date())
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
     normal_logo = Column(CHAR(45))
-    small_logo = Column(CHAR(45))
     home_kit = Column(CHAR(45))
     away_kit = Column(CHAR(45))
     third_kit = Column(CHAR(45))
@@ -187,8 +203,7 @@ class ClubTranslation(Translation):
     __tablename__ = 'clubtranslation'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    club_name = Column(String(60)) # or Column(String(30))
-    nickname = Column(String(30)) # or Column(String(30))
+    name = Column(String(60)) # or Column(String(30))
     club = Column(TINYINT(10), ForeignKey('club.id'))
 
 class Team(ApiModel):
@@ -212,8 +227,17 @@ class Team(ApiModel):
             o['owner'] = owner.to_api(admin)
         except Exception,e:
             o['owner'] = None
+        try:
+            o['competition'] = self.competition.to_api()
+        except Exception,e:
+            o['competition'] = None
         db.close()
         return o
+    
+    @property
+    def competition(self):
+        query = object_session(self).query(Competition).with_parent(self,'competitions')
+        return query.first()
 
 class TeamPlayer(ApiModel):
     __tablename__ = 'teamplayer'
@@ -231,6 +255,23 @@ class TeamPlayer(ApiModel):
         db.close()
         return o
 
+class NationPlayer(ApiModel):
+    __tablename__ = 'nation2player'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nation_id = Column(Integer, ForeignKey('nation.id'))
+    player_id = Column(Integer, ForeignKey('player.id'))
+    player = relationship("Player", backref="nationlayer")
+    nation = relationship("Nation", backref="nationlayer")
+    
+    def to_api(self,admin):
+        db = DB_Session()
+        o = super(TeamPlayer, self).to_api()
+        o['player'] = self.player.to_api(admin)
+        o['nation'] = self.nation.to_api(admin)
+        db.close()
+        return o
+
 class PlayerPosition(BaseModel):
     __tablename__ = 'player2position'
 
@@ -243,27 +284,26 @@ class Player(TranslationModel):
     __tablename__ = 'player'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    full_name = Column(String(60)) # or Column(String(30))
-    short_name = Column(String(30)) # or Column(String(30))
+    name = Column(String(60)) # or Column(String(30))
     date_of_birth = Column(Date())
-    nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
     height = Column(TINYINT(3))
     weight = Column(TINYINT(4))
-    left_foot = Column(TINYINT(2))
-    right_foot = Column(TINYINT(2))
+    foot = Column(CHAR(5))
     avatar = Column(CHAR(45))
     created_at = Column(DateTime, default=datetime.datetime.now)
     updated_at = Column(DateTime, onupdate=datetime.datetime.now, default=datetime.datetime.now)
     translation = relationship('PlayerTranslation', backref="player_ref", lazy="dynamic")
     player2position = relationship("PlayerPosition", backref="player_ref", cascade='all, delete-orphan')
+    transfer = relationship("Transfer", backref="player_ref", cascade='all, delete-orphan')
     
     __mapper_args__ = {
-        "order_by":"full_name"
+        "order_by":"name"
     }
     
     def to_api(self, admin):
         o = super(Player, self).to_api(admin)
-        nation = self.nationality
+        db = DB_Session()
+        nation = db.query(Nation).join(NationPlayer, Nation.id == NationPlayer.nation_id).join(Player, Player.id == NationPlayer.player_id).filter(Player.id == self.id).first()
         try:
             o['nation'] = nation.to_api(admin)
         except Exception,e:
@@ -272,6 +312,7 @@ class Player(TranslationModel):
             del o['avatar']
         del o['created_at']
         del o['updated_at']
+        db.close()
         return o
 
     def get_tranlation(self):
@@ -290,13 +331,40 @@ class Position(ApiModel):
     __tablename__ = 'position'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    position_name = Column(TINYINT(2)) # or Column(String(30))
-    side = Column(TINYINT(1)) # or Column(String(30))
-    score = Column(TINYINT(2))
+    name = Column(String(30)) # or Column(String(30))
     
     __mapper_args__ = {
-        "order_by":["position_name","side","score"]
+        "order_by":["name"]
     }
+
+class Transfer(ApiModel):
+    __tablename__ = 'transfer'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    taking_team_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
+    releasing_team_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
+    player_id = Column(Integer, ForeignKey(Player.id))
+    season = Column(Integer)
+    transfer_date = Column(Date())
+    transfer_sum = Column(Integer)
+    contract_period = Column(Date())
+    loan = Column(CHAR(3))
+    player = relationship("Player", foreign_keys="Transfer.player_id")
+    taking_team = relationship("Team", foreign_keys="Transfer.taking_team_id")
+    releasing_team = relationship("Team", foreign_keys="Transfer.releasing_team_id")
+    
+    __mapper_args__ = {
+        "order_by":["-transfer_date"]
+    }
+    
+    def to_api(self):
+        o = super(Transfer, self).to_api()
+        db = DB_Session()
+        o['releasing_team'] = self.releasing_team.to_api(None)
+        o['taking_team'] = self.taking_team.to_api(None)
+        o['player'] = self.player.to_api(None)
+        db.close()
+        return o
 
 class Match(ApiModel):
     __tablename__ = 'match'

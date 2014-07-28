@@ -25,7 +25,7 @@ define(function(require) {
 			currentPage : 1,
 
 			// how many items per page should be shown
-			perPage : 10,
+			perPage : 20,
 
 			// a default number of total pages to query in case the API or
 			// service you are using does not support providing the total
@@ -36,6 +36,9 @@ define(function(require) {
 		server_api : {
 			p : function() {
 				return this.currentPage;
+			},
+			limit:function(){
+				return this.perPage;
 			},
 			nation : function() {
 				return this.nation ? this.nation.id : undefined;

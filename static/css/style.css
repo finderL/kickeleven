@@ -7,12 +7,6 @@ html {
 .flex-height {
 	height: 100%;
 }
-.flex-height.panel.has-header {
-	padding-top: 38px;
-}
-.flex-height.panel.grid.has-pager {
-	padding-bottom: 42px;
-}
 .flex-height > .panel-heading {
 	margin-top: -38px;
 }
@@ -393,5 +387,45 @@ img {
 	padding-bottom: 50px;
 }
 .change-list .grid {
+	margin-bottom: 10px;
+}
+/*===RECENT TRANSFER===*/
+.recent-trasfers > .transfer-summary{
+	margin-bottom: 15px;
+}
+.transfer-summary {
+	position: relative;
+	display: block;
+	min-height: 48px;
+}
+.transfer-summary .content {
+	margin-left: 58px;
+}
+.transfer-summary .avatar {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.avatar {
+	width: 48px;
+	height: 48px;
+	border-radius: 5px;
+	-moz-force-broken-image-icon: 1;
+}
+.fullname {
+	font-size: 13px;
+	font-weight: 400;
+}
+.profile-header-name {
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1;
+	word-wrap: break-word;
+}
+.profile-header-competition {
+	color: #8899a6;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1;
 	margin-bottom: 10px;
 }

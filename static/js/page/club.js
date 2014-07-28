@@ -8,19 +8,20 @@ define(function(require){
 	Club = require('../collection/club'),
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
-		tpl:'<div class="col-lg-12 flex-height"></div>',
+		tpl:'<div class="col-lg-12"></div>',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
 			this.listClub();
 		},
 		listClub:function(){
 			var me = this;
-			me.collection = me.collection || new Club;
+			me.collection = new Club;
+			me.collection.pager();
 			new Table({
 				loading:true,
 				header:false,
 				refreshable:true,
-				uiClass:'player-list flex-height',
+				uiClass:'player-list',
 				title:i18n.__('Club'),
 				columns : [{
 					text : i18n.__('Club Name'),
@@ -29,7 +30,7 @@ define(function(require){
 					renderer : function(value,data) {
 						return '<a data-item-id="'+data.id+'" href="/#club/'+data.id+'/">'+value+'</a>';
 					},
-					dataIndex : 'club_name'
+					dataIndex : 'name'
 				}, {
 					text : i18n.__('Nation'),
 					sortable : true,
@@ -43,14 +44,6 @@ define(function(require){
 						}
 					},
 					dataIndex : 'nation'
-				}, {
-					text : 'Year Founded',
-					sortable : true,
-					width:200,
-					renderer : function(value) {
-						return moment(value).format('YYYY-MM-DD');
-					},
-					dataIndex : 'year_founded'
 				}],
 				collection : me.collection,
 				renderTo:me.$el.find('.col-lg-12').empty(),

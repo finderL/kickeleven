@@ -10,6 +10,9 @@ define(function(require) {
 				return '/api/team/?id=' + this.id + (this.isAdmin ? '&admin=1':'');
 			}
 		},
+		getLogoPath:function(){
+			return '/static/images/clubs/'+this.get('club').id + '.png';
+		},
 		parse : function(resp) {
 			//if(resp.results && resp.results)
 			if(resp.rv){

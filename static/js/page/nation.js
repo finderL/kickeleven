@@ -8,19 +8,20 @@ define(function(require){
 	Nation = require('../collection/nation'),
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
-		tpl:'<div class="col-lg-12 flex-height"></div>',
+		tpl:'<div class="col-lg-12"></div>',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
 			this.listNation();
 		},
 		listNation:function(){
 			var me = this;
-			me.collection = me.collection || new Nation;
+			me.collection = new Nation;
+			me.collection.pager();
 			new Table({
 				loading:true,
 				header:false,
 				refreshable:true,
-				uiClass:'player-list flex-height',
+				uiClass:'player-list',
 				title:i18n.__('Club'),
 				columns : [{
 					text : i18n.__('Full Name'),

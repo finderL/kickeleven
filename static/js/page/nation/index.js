@@ -5,94 +5,88 @@ define(function(require){
 	require('moment');
 	var Base = require('../base'),
 	Table = require('../../taurus/panel/table'),
-	Squad = require('../../collection/nationSquad'),
-	Player = require('../../collection/player'),
+	Competition = require('../../collection/competition'),
+	Team = require('../../collection/team'),
 	Nation = require('../../model/nation'),
-	Panel = require('../../panel/nationPanel'),
 	i18n = require('../../i18n/{locale}');
 	return Base.extend({
 		events:{
 			'click .player-list a':'playerSummary'
 		},
-		tpl:'<div class="col-lg-3 flex-height"></div><div class="col-lg-9 flex-height"></div>',
+		tpl:'<div class="col-lg-3"></div><div class="col-lg-9"></div>',
 		initialize:function(options){
+			Base.prototype.initialize.apply(this,arguments);
 			var me = this;
 			this.model = new Nation({
 				id:options.id
 			});
-			//delete options.id;
-			Base.prototype.initialize.apply(this,[options]);
-			this.listPlayer();
-			this.model.fetch({
-				success:function(){
-					new Panel({
-						model:me.model,
-						renderTo:me.$el.find('.col-lg-3').empty()
-					});
+			this.competition = new Competition();
+			this.competition.fetch({
+				data:{
+					nation:options.id
 				}
 			});
+			this.nationTeam = new Team();
+			this.nationTeam.fetch({
+				data:{
+					nation:options.id,
+					type:1
+				}
+			});
+			this.competition.fetch({
+				data:{
+					nation:options.id
+				}
+			});
+			this.listCompetition();
+			this.listNationTeam();
 		},
-		listPlayer:function(){
+		listCompetition:function(){
 			var me = this;
-			me.collection = me.collection || new Player;
 			new Table({
 				loading:true,
-				header:false,
 				refreshable:true,
-				uiClass:'player-list flex-height',
-				title:i18n.__('Player'),
+				uiClass:'player-list',
+				title:i18n.__('National leagues and cup competition'),
 				columns : [{
-					text : i18n.__('Full Name'),
+					text : i18n.__('Competition'),
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#player/'+data.id+'/">'+value+'</a>';
+						return '<a data-item-id="'+data.id+'" href="/#competition/'+data.id+'/">'+value+'</a>';
 					},
-					dataIndex : 'full_name'
-				}, {
-					text : i18n.__('Height'),
-					sortable : false,
-					width:100,
-					dataIndex : 'height'
-				}, {
-					text : i18n.__('Weight'),
-					sortable : false,
-					width:100,
-					dataIndex : 'weight'
-				}, {
-					text : 'Age',
-					sortable : false,
-					width:100,
-					renderer : function(value) {
-						return taurus.Date.getAge(value, 'yyyy-mm-dd');
-					},
-					dataIndex : 'date_of_birth'
+					dataIndex : 'name'
 				}],
-				collection : me.collection,
+				collection : this.competition,
 				renderTo:me.$el.find('.col-lg-9').empty(),
 				onRefresh:function(){
 					me.collection.fetch();
 				}
 			});
-			me.collection.fetch({
-				data:{
-					nation:this.id
+		},
+		listNationTeam:function(e){
+			var me = this;
+			new Table({
+				loading:true,
+				header:false,
+				refreshable:true,
+				uiClass:'player-list',
+				title:i18n.__('National Teams'),
+				columns : [{
+					text : i18n.__('National Teams'),
+					flex : 1,
+					sortable : false,
+					renderer : function(value,data) {
+						return '<a data-item-id="'+data.id+'" href="/#team/'+data.id+'/">'+value+'</a>';
+					},
+					dataIndex : 'team_name'
+				}],
+				collection : this.nationTeam,
+				renderTo:me.$el.find('.col-lg-3').empty(),
+				onRefresh:function(){
+					me.collection.fetch();
 				}
 			});
-		},
-		playerSummary:function(e){
-			var me = this;
-			require.async(['../../widget/playerDialog'],function(Panel){
-				var model = me.collection.get($(e.target).attr('data-item-id'));
-				(new Panel({
-					width:400,
-					title:model.get('full_name'),
-					model:model,
-					renderTo:taurus.$body
-				})).show();
-				model.fetch();
-			});
-			return false;
 		}
 	});
 });

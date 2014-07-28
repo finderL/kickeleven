@@ -42,14 +42,6 @@
 	border-left:0;
 	border-right:1px solid #dddddd;
 }
-.table th, .table td, table th, table td {
-	padding: 0;
-	overflow:hidden;
-}
-.table {
-	table-layout:fixed;
-	border-collapse:separate;
-}
 .column-header {
 	display:inline-block;
 	vertical-align:top;
@@ -71,9 +63,6 @@
 	text-overflow:ellipsis;
 	white-space:nowrap;
 	padding:8px;
-}
-.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{
-	padding:0px;
 }
 .grid-ct{
 	border:1px solid #dddddd;

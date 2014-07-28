@@ -5,7 +5,7 @@ define(function(require) {
 	require('../taurus/lang/date');
 	return Backbone.Model.extend({
 		defaults:{
-			avatar:'none.png'
+			avatar:'/static/tmp/none.png'
 		},
 		/*relations: [{
 			type: Backbone.HasMany,
@@ -61,9 +61,12 @@ define(function(require) {
 		parse : function(resp) {
 			//if(resp.results && resp.results)
 			if(resp.rv){
-				return resp.rv.player;
-			}
-			return resp
+				resp = resp.rv.player;
+			};
+			if(resp.avatar){
+				resp.avatar = '/static/tmp/' + resp.avatar;
+			};
+			return resp;
 		}
 	});
 });
