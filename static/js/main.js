@@ -32,6 +32,9 @@ define(function(require){
 			},{
 				text:'La Liga',
 				href:'/#competition/2/'
+			},{
+				text:'1.Bundesliga',
+				href:'/#competition/3/'
 			}]
 		}]
 	})
