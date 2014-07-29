@@ -178,7 +178,7 @@ class Club(TranslationModel):
     name = Column(String(60)) # or Column(String(30))
     foundation = Column(Date())
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
-    normal_logo = Column(CHAR(45))
+    logo_id = Column(Integer)
     home_kit = Column(CHAR(45))
     away_kit = Column(CHAR(45))
     third_kit = Column(CHAR(45))
