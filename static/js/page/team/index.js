@@ -27,6 +27,7 @@ define(function(require){
 			this.model.fetch({
 				success:function(model){
 					model.set('club',new Club(model.get('owner')));
+					document.title = model.get('team_name');
 					new ProfileSidebar({
 						model:model,
 						renderTo:me.$el.find('.col-lg-3:eq(0)')
