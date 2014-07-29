@@ -11,7 +11,7 @@ define(function(require) {
 			}
 		},
 		getLogoPath:function(){
-			return '/static/images/clubs/'+this.get('club').get('logo_id') + '.png';
+			return '/static/resources/clubs/'+this.get('club').get('logo_id') + '.png';
 		},
 		parse : function(resp) {
 			//if(resp.results && resp.results)
