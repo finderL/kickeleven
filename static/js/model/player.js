@@ -4,18 +4,6 @@
 define(function(require) {
 	require('../taurus/lang/date');
 	return Backbone.Model.extend({
-		defaults:{
-			avatar:'/static/tmp/none.png'
-		},
-		/*relations: [{
-			type: Backbone.HasMany,
-			key: 'nationality',
-			relatedModel: 'taurus.model.National',
-			reverseRelation: {
-				key: 'player'
-				// 'relatedModel' is automatically set to 'Zoo'; the 'relationType' to 'HasOne'.
-			}
-		}],*/
 		url:function(){
 			if(this.isNew()){
 				return '/api/player/' + (this.isAdmin ? '&admin=1':'');

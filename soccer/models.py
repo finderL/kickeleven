@@ -289,7 +289,7 @@ class Player(TranslationModel):
     height = Column(TINYINT(3))
     weight = Column(TINYINT(4))
     foot = Column(CHAR(5))
-    avatar = Column(CHAR(45))
+    avatar_id = Column(Integer)
     created_at = Column(DateTime, default=datetime.datetime.now)
     updated_at = Column(DateTime, onupdate=datetime.datetime.now, default=datetime.datetime.now)
     translation = relationship('PlayerTranslation', backref="player_ref", lazy="dynamic")
@@ -308,8 +308,6 @@ class Player(TranslationModel):
             o['nation'] = nation.to_api(admin)
         except Exception,e:
             o['nation'] = None
-        if not o['avatar']:
-            del o['avatar']
         del o['created_at']
         del o['updated_at']
         db.close()
