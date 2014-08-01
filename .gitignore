@@ -29,7 +29,8 @@ nbproject
 *.sublime-project
 *.sublime-workspace
 .idea
-static/images/clubs/
+static/images/clubs
+static/resources
 
 # Komodo
 *.komodoproject

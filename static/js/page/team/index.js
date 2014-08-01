@@ -6,9 +6,10 @@ define(function(require){
 	var Base = require('../base'),
 	Table = require('../../taurus/panel/table'),
 	Teams = require('../../collection/team'),
-	Player = require('../../collection/player'),
+	Players = require('../../collection/player'),
 	Team = require('../../model/team'),
 	Club = require('../../model/club'),
+	Player = require('../../model/player'),
 	Transfer = require('../../collection/transfer'),
 	RecentTransfer = require('../../panel/recentTransfer'),
 	ProfileSidebar = require('../../view/profileSidebar'),
@@ -34,7 +35,7 @@ define(function(require){
 					});
 				}
 			});
-			this.squad = new Player();
+			this.squad = new Players();
 			this.squad.fetch({
 				data:{
 					team:options.id
@@ -134,14 +135,31 @@ define(function(require){
 		playerProfileDialog:function(e){
 			var me = this;
 			require.async(['../../widget/playerProfilePopDialog'],function(Dialog){
-				var model = me.squad.get($(e.currentTarget).attr('data-player-id'));
-				(new Dialog({
-					width:590,
-					title:i18n.__('Personal Profile'),
-					model:model,
-					renderTo:taurus.$body
-				})).show();
-				model.fetch();
+				var id = $(e.currentTarget).attr('data-player-id'),
+				model = me.squad.get(id);
+				if(model){
+					(new Dialog({
+						width:590,
+						title:i18n.__('Personal Profile'),
+						model:model,
+						renderTo:taurus.$body
+					})).show();
+					model.fetch();
+				} else {
+					model = new Player({
+						id:id
+					});
+					model.fetch({
+						success:function(){
+							(new Dialog({
+								width:590,
+								title:i18n.__('Personal Profile'),
+								model:model,
+								renderTo:taurus.$body
+							})).show();
+						}
+					});
+				}
 			});
 			return false;
 		}
