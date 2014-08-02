@@ -23,7 +23,7 @@ define(function(require){
 		return false;
 	});
 	new Menu({
-		triggerEl:$('.navbar-collapse > .navbar-nav:eq(1) > li:eq(2) > a'),
+		triggerEl:$('.navbar-collapse > .navbar-nav:eq(0) > li:eq(2) > a'),
 		menus:[{
 			text:'National',
 			menus:[{
