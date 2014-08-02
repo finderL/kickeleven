@@ -42,7 +42,7 @@ define(function(require) {
 			Backbone.history.route(route, function(fragment) {
 				var args = router._extractParameters(route, fragment);
 				callback && callback.apply(router, args);
-				router.trigger.apply(router, ['route:' + name].concat(args));
+				//router.trigger.apply(router, ['route:' + name].concat(args));
 				router.trigger('route', name, args);
 				Backbone.history.trigger('route', router, name, args);
 				var active = $('[href="#'+name+'"]');
