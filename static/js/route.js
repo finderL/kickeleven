@@ -5,8 +5,7 @@ define(function(require) {
 	require('backbone');
 	var site = require('./admin/admin').site,
 	patterns = require('./admin/admin').patterns,
-	route = Backbone.Router.prototype.route,
-	ga = ga || function(){};
+	route = Backbone.Router.prototype.route;
 	return Backbone.Router.extend({
 		container : taurus.$body.find('>.container'),
 		initialize : function() {
