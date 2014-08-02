@@ -3,9 +3,9 @@
  */
 define(function(require) {
 	require('backbone');
-	var site = require('./admin/admin').site,
-	patterns = require('./admin/admin').patterns,
-	route = Backbone.Router.prototype.route;
+	//var site = require('./admin/admin').site,
+	//patterns = require('./admin/admin').patterns,
+	var route = Backbone.Router.prototype.route;
 	return Backbone.Router.extend({
 		container : taurus.$body.find('>.container'),
 		initialize : function() {
@@ -16,7 +16,7 @@ define(function(require) {
 			var url = Backbone.history.getFragment();
 			return ga('send', 'pageview', '/' + url);
 		},
-		routes : $.extend(patterns('admin',site.get_urls()),{
+		routes : /*$.extend(patterns('admin',site.get_urls()),*/{
 			"" : "home", // #home
 			"home" : "home", // #home
 			"player" : "player",
@@ -28,7 +28,7 @@ define(function(require) {
 			"competition/:id/" : "competition",
 			":page/" : "page", // #playerlist
 			":page/:id/" : "overview" // #contractlist
-		}),
+		}/*)*/,
 		route : function(route, name, callback) {
 			if (!_.isRegExp(route))
 				route = this._routeToRegExp(route);

@@ -35,6 +35,9 @@ define(function(require){
 			},{
 				text:'1.Bundesliga',
 				href:'/#competition/3/'
+			},{
+				text:'Ligue 1',
+				href:'/#competition/4/'
 			}]
 		}]
 	})
