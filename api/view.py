@@ -11,7 +11,7 @@ from sqlalchemy.orm import class_mapper
 from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, Events, EventsTeams,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Matchs,Rounds
 from settings import TEMP_DIR
 from sqlalchemy.types import String
-from sqlalchemy import desc
+from sqlalchemy import desc,or_
 
 PAGE_ARGS = ('limit','p')
 
@@ -539,7 +539,7 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
                 match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event)
             if kwargs.has_key('team'):
                 team = kwargs['team']
-                match = query.filter(Matchs.team1_id == team or Matchs.team2_id == team)
+                match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team))
             match = paging(match, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()

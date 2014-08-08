@@ -57,6 +57,12 @@ define(function(require){
 					},
 					dataIndex : 'team1'
 				},{
+					text : i18n.__('Result'),
+					renderer : function(value,data) {
+						return [data.score1 ? data.score1 : '-',data.score2 ? data.score2 : '-'].join(':');
+					},
+					dataIndex : 'team2'
+				},{
 					text : i18n.__('Away team'),
 					renderer : function(value,data) {
 						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
