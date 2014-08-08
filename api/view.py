@@ -8,7 +8,7 @@ Created on 2011-9-12
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
 from sqlalchemy.orm import class_mapper
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, CompetitionTeam,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Match
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, Events, EventsTeams,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Matchs,Rounds
 from settings import TEMP_DIR
 from sqlalchemy.types import String
 from sqlalchemy import desc
@@ -412,6 +412,35 @@ def nationsquad(nation=None, p=None, limit=None):
         db.close()
     return n
 
+def events(id=None, p=None, limit=None,admin=None, **kwargs):
+    db = DB_Session()
+    query = db.query(Events)
+    if web.ctx.method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if web.ctx.method in ('PUT','PATCH'):
+            event = query.get(int(id))
+            for name,value in i.items():
+                setattr(event, name, value)
+        else:
+            event = Events(**i)
+            db.add(event)
+            db.flush()
+            db.refresh(event)
+        db.commit()
+        n = ResultWrapper(event, event=event.to_api())
+    else:
+        if id:
+            event = query.get(int(id))
+            event = event.to_api()
+            n = ResultWrapper(event, event=event)
+        else:
+            if kwargs.has_key('competition'):
+                competition = kwargs['competition']
+                event = query.filter(Events.competition_id == int(competition)).order_by('-start_at').first()
+            n = ResultWrapper(event, event=event.to_api())
+    db.close()
+    return n
+
 def competition(id=None, p=None, limit=None,admin=None, **kwargs):
     db = DB_Session()
     query = db.query(Competition)
@@ -475,17 +504,17 @@ def team(id=None, p=None, limit=None,admin=None, **kwargs):
             if kwargs.has_key('club'):
                 club = kwargs['club']
                 team = query.filter(Team.owner_id == int(club), Team.type == 2)
-            if kwargs.has_key('competition'):
-                competition = kwargs['competition']
-                team = query.join(CompetitionTeam, Team.id == CompetitionTeam.team_id).filter(CompetitionTeam.competition_id == int(competition))
+            if kwargs.has_key('event'):
+                event = kwargs['event']
+                team = query.join(EventsTeams, Team.id == EventsTeams.team_id).filter(EventsTeams.event_id == int(event))
             team = paging(team, limit, p)
             n = ResultWrapper(team, team=[v.to_api(admin) for v in team],count=query.count())
     db.close()
     return n
 
-def match(id=None, p=None, limit=None,admin=None):
+def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
     db = DB_Session()
-    query = db.query(Match)
+    query = db.query(Matchs)
     if web.ctx.method in ('POST','PUT','PATCH'):
         i=json.loads(web.data())
         if web.ctx.method in ('PUT','PATCH'):
@@ -493,7 +522,7 @@ def match(id=None, p=None, limit=None,admin=None):
             for name,value in i.items():
                 setattr(match, name, value)
         else:
-            match = Match(**i)
+            match = Matchs(**i)
             db.add(match)
             db.flush()
             db.refresh(match)
@@ -505,7 +534,13 @@ def match(id=None, p=None, limit=None,admin=None):
             match = match.to_api(admin)
             n = ResultWrapper(match, match=match)
         else:
-            match = paging(query, limit, p)
+            if kwargs.has_key('event'):
+                event = kwargs['event']
+                match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event)
+            if kwargs.has_key('team'):
+                team = kwargs['team']
+                match = query.filter(Matchs.team1_id == team or Matchs.team2_id == team)
+            match = paging(match, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()
     return n
@@ -572,13 +607,14 @@ class PublicApi:
                "nation":nation,
                "city":city,
                "competition":competition,
+               "events":events,
                "position":position,
                "player":player,
                "playertranslation":playertranslation,
                "club":club,
                "clubtranslation":clubtranslation,
                "team":team,
-               "match":match,
+               "matchs":matchs,
                "clubsquad":clubsquad,
                "nationsquad":nationsquad,
                'teamplayer':teamplayer,

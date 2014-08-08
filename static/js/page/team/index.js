@@ -11,6 +11,7 @@ define(function(require){
 	Club = require('../../model/club'),
 	Player = require('../../model/player'),
 	Transfer = require('../../collection/transfer'),
+	Match = require('../../collection/match'),
 	RecentTransfer = require('../../panel/recentTransfer'),
 	ProfileSidebar = require('../../view/profileSidebar'),
 	i18n = require('../../i18n/zh-cn');
@@ -33,6 +34,7 @@ define(function(require){
 						model:model,
 						renderTo:me.$el.find('.col-lg-3:eq(0)')
 					});
+					me.listMatchs(model)
 				}
 			});
 			this.squad = new Players();
@@ -43,6 +45,47 @@ define(function(require){
 			});
 			this.listSquad();
 			this.recentTransfer();
+		},
+		listMatchs:function(model){
+			var me = this;
+			matchs = new Match();
+			matchs.fetch({
+				data:{
+					'team':this.model.id,
+					limit:10
+				}
+			});
+			new Table({
+				loading:true,
+				refreshable:true,
+				uiClass:'player-list',
+				title:i18n.__('Fixtures '),
+				columns : [{
+					text : i18n.__('Date'),
+					renderer : function(value,data) {
+						return moment(value).format('MMM DD');
+					},
+					dataIndex : 'play_at'
+				},{
+					text : i18n.__('H/A'),
+					renderer : function(value,data) {
+						return value.id == me.model.id ? 'H' : 'A'
+					},
+					dataIndex : 'team1'
+				},{
+					text : i18n.__('Team'),
+					renderer : function(value,data) {
+						var team = value.id != me.model.id ? value : data.team1;
+						return '<a data-item-id="'+team.id+'" href="/#team/'+team.id+'/"><img src="/static/resources/clubs/'+team.owner.logo_id +'.png" height="20" width="20"/></a>';
+					},
+					dataIndex : 'team2'
+				}],
+				collection : matchs,
+				renderTo:me.$el.find('.col-lg-3:eq(0)'),
+				onRefresh:function(){
+					me.collection.fetch();
+				}
+			});
 		},
 		recentTransfer:function(){
 			var taking_transfer = new Transfer();

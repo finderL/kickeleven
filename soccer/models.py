@@ -154,12 +154,18 @@ class CompetitionCategory(ApiModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(20))
 
-class CompetitionTeam(BaseModel):
-    __tablename__ = 'competitionteam'
+class EventsTeams(BaseModel):
+    __tablename__ = 'events_teams'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    competition_id = Column(Integer, ForeignKey('competition.id'))
+    event_id = Column(Integer, ForeignKey('events.id'))
     team_id = Column(Integer, ForeignKey('team.id'))
+    
+class Seasons(ApiModel):
+    __tablename__ = 'seasons'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(CHAR(7))
 
 class Competition(ApiModel):
     __tablename__ = 'competition'
@@ -169,7 +175,35 @@ class Competition(ApiModel):
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
     category_id = Column(TINYINT(2), ForeignKey('competition_type.id'))
     type = Column(Boolean)
-    teams = relationship('Team', secondary=CompetitionTeam.__table__, backref=backref('competitions'))
+    
+class Events(ApiModel):
+    __tablename__ = 'events'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    competition_id = Column(Integer, ForeignKey(Competition.id))
+    season_id = Column(Integer, ForeignKey(Seasons.id))
+    teams = relationship('Team', secondary=EventsTeams.__table__, backref=backref('events', uselist=False))
+    competition = relationship("Competition", foreign_keys="Events.competition_id")
+    season = relationship("Seasons", foreign_keys="Events.season_id")
+    
+    def to_api(self):
+        db = DB_Session()
+        o = super(Events, self).to_api()
+        o['competition'] = self.competition.to_api()
+        o['season'] = self.season.to_api()
+        db.close()
+        return o
+
+class Rounds(ApiModel):
+    __tablename__ = 'rounds'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    event_id = Column(Integer, ForeignKey(Events.id))
+    name = Column(String(50))
+    pos = Column(Integer)
+    start_at = Column(Date)
+    end_at = Column(Date)
+    event = relationship("Events", foreign_keys="Rounds.event_id")
 
 class Club(TranslationModel):
     __tablename__ = 'club'
@@ -228,9 +262,9 @@ class Team(ApiModel):
         except Exception,e:
             o['owner'] = None
         try:
-            o['competition'] = self.competition.to_api()
+            o['events'] = self.events.to_api()
         except Exception,e:
-            o['competition'] = None
+            o['events'] = None
         db.close()
         return o
     
@@ -364,27 +398,27 @@ class Transfer(ApiModel):
         db.close()
         return o
 
-class Match(ApiModel):
-    __tablename__ = 'match'
+class Matchs(ApiModel):
+    __tablename__ = 'matchs'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    home_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
-    away_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
-    match_date = Column(DateTime)
-    city_id = Column(Integer, ForeignKey(City.id))
-    home_score = Column(TINYINT(2))
-    away_score = Column(TINYINT(2))
-    home_team = relationship("Team", foreign_keys="Match.home_id")
-    away_team = relationship("Team", foreign_keys="Match.away_id")
-    city = relationship("City", foreign_keys="Match.city_id")
+    round_id = Column(Integer, ForeignKey(Rounds.id))
+    team1_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
+    team2_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
+    play_at = Column(DateTime)
+    score1 = Column(TINYINT(2))
+    score2 = Column(TINYINT(2))
+    team1 = relationship("Team", foreign_keys="Matchs.team1_id")
+    team2 = relationship("Team", foreign_keys="Matchs.team2_id")
+    round = relationship("Rounds", foreign_keys="Matchs.round_id")
     
     __mapper_args__ = {
-        "order_by":["match_date"]
+        "order_by":["play_at"]
     }
     
     def to_api(self, admin):
-        o = super(Match, self).to_api()
-        o['home_team'] = self.home_team.to_api(admin)
-        o['away_team'] = self.away_team.to_api(admin)
-        o['city'] = self.city.to_api(admin)
+        o = super(Matchs, self).to_api()
+        o['team1'] = self.team1.to_api(admin)
+        o['team2'] = self.team2.to_api(admin)
+        o['round'] = self.round.to_api()
         return o

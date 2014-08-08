@@ -17,8 +17,8 @@ define(function(require){
 			return $.extend(Base.prototype.getTplData.apply(this,arguments),{
 				logo:this.model.getLogoPath(),
 				name:this.model.get('team_name'),
-				competition_name:this.model.get('competition').name,
-				competition_id:this.model.get('competition').id
+				competition_name:this.model.get('events').competition.name,
+				competition_id:this.model.get('events').competition.id
 			});
 		}
 	});
