@@ -38,6 +38,9 @@ define(function(require){
 			},{
 				text:'Ligue 1',
 				href:'/#competition/4/'
+			},{
+				text:'Serie A',
+				href:'/#competition/5/'
 			}]
 		}]
 	})
