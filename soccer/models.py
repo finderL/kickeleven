@@ -175,6 +175,7 @@ class Competition(ApiModel):
     nation_id = Column(TINYINT(3), ForeignKey('nation.id'))
     category_id = Column(TINYINT(2), ForeignKey('competition_type.id'))
     type = Column(Boolean)
+    logo_id = Column(Integer)
     
 class Events(ApiModel):
     __tablename__ = 'events'

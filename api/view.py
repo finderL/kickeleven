@@ -536,7 +536,7 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
         else:
             if kwargs.has_key('event'):
                 event = kwargs['event']
-                match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event)
+                match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at > datetime.datetime.now())
             if kwargs.has_key('team'):
                 team = kwargs['team']
                 match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team))

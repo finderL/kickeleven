@@ -9,12 +9,13 @@ define(function(require){
 	Team = require('../../collection/team'),
 	Match = require('../../collection/match'),
 	Nation = require('../../model/nation'),
+	ProfileSidebar = require('../../view/competitionProfileSidebar'),
 	i18n = require('../../i18n/{locale}');
 	return Base.extend({
 		events:{
 			'click .player-list a':'playerSummary'
 		},
-		tpl:'<div class="col-lg-8"></div><div class="col-lg-4"></div>',
+		tpl:'<div class="col-lg-3"></div><div class="col-lg-6"></div><div class="col-lg-3"></div>',
 		initialize:function(options){
 			Base.prototype.initialize.apply(this,arguments);
 			var me = this;
@@ -24,6 +25,11 @@ define(function(require){
 					competition:options.id
 				},
 				success:_.bind(function(model){
+					document.title = model.get('competition').name;
+					new ProfileSidebar({
+						model:model,
+						renderTo:me.$el.find('.col-lg-3:eq(0)')
+					});
 					this.listTeam(model);
 					this.listMatchs(model)
 				},this),
@@ -42,6 +48,7 @@ define(function(require){
 			new Table({
 				loading:true,
 				refreshable:true,
+				header:false,
 				uiClass:'player-list',
 				title:i18n.__('Fixtures ' + model.get('competition').name + ' ' + model.get('season').name),
 				columns : [{
@@ -51,7 +58,7 @@ define(function(require){
 					},
 					dataIndex : 'play_at'
 				},{
-					text : i18n.__('Home team'),
+					text : i18n.__('Home'),
 					renderer : function(value,data) {
 						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 					},
@@ -59,18 +66,18 @@ define(function(require){
 				},{
 					text : i18n.__('Result'),
 					renderer : function(value,data) {
-						return [data.score1 ? data.score1 : '-',data.score2 ? data.score2 : '-'].join(':');
+						return [data.score1 !== null ? data.score1 : '-',data.score2 !== null ? data.score2 : '-'].join(':');
 					},
 					dataIndex : 'team2'
 				},{
-					text : i18n.__('Away team'),
+					text : i18n.__('Away'),
 					renderer : function(value,data) {
 						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 					},
 					dataIndex : 'team2'
 				}],
 				collection : matchs,
-				renderTo:me.$el.find('.col-lg-4').empty(),
+				renderTo:me.$el.find('.col-lg-3:eq(1)').empty(),
 				onRefresh:function(){
 					me.collection.fetch();
 				}
@@ -122,7 +129,7 @@ define(function(require){
 					dataIndex : 'team_name'
 				}],
 				collection : team,
-				renderTo:me.$el.find('.col-lg-8').empty(),
+				renderTo:me.$el.find('.col-lg-6').empty(),
 				onRefresh:function(){
 					me.collection.fetch();
 				}
