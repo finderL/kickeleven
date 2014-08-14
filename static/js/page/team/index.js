@@ -131,7 +131,7 @@ define(function(require){
 				loading:true,
 				header:false,
 				refreshable:true,
-				uiClass:'player-list flex-height',
+				uiClass:'player-list',
 				title:i18n.__('Club Teams'),
 				columns : [{
 					text : i18n.__('Name'),
