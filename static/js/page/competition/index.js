@@ -6,6 +6,7 @@ define(function(require){
 	var Base = require('../base'),
 	Table = require('../../taurus/panel/table'),
 	Event = require('../../model/event'),
+	Tables = require('../../collection/table'),
 	Team = require('../../collection/team'),
 	Match = require('../../collection/match'),
 	Nation = require('../../model/nation'),
@@ -31,18 +32,69 @@ define(function(require){
 						renderTo:me.$el.find('.col-lg-3:eq(0)')
 					});
 					this.listTeam(model);
-					this.listMatchs(model)
+					this.listFixtures(model);
+					this.listResults(model)
 				},this),
 			});
 
 		},
-		listMatchs:function(model){
-			var me = this;
+		listResults:function(model){
+			var me = this,
 			matchs = new Match();
 			matchs.fetch({
 				data:{
 					'event':this.model.id,
-					limit:10
+					limit:10,
+					'results':1
+				},
+				success:function(collection){
+					if(collection.length){
+						new Table({
+							loading:true,
+							refreshable:true,
+							header:false,
+							uiClass:'player-list',
+							title:i18n.__('Results'),
+							columns : [{
+								text : i18n.__('Date'),
+								renderer : function(value,data) {
+									return '<span title="' + moment(value).format('MMM DD, YYYY, hh:mm:ss') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
+								},
+								dataIndex : 'play_at'
+							},{
+								text : i18n.__('Home'),
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+								},
+								dataIndex : 'team1'
+							},{
+								text : i18n.__('Result'),
+								renderer : function(value,data) {
+									return [data.score1 !== null ? data.score1 : '-',data.score2 !== null ? data.score2 : '-'].join(':');
+								},
+								dataIndex : 'team2'
+							},{
+								text : i18n.__('Away'),
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+								},
+								dataIndex : 'team2'
+							}],
+							collection : collection,
+							renderTo:me.$el.find('.col-lg-3:eq(0)')
+						});
+					}
+				}
+			});
+		},
+		listFixtures:function(model){
+			var me = this,
+			matchs = new Match();
+			matchs.fetch({
+				data:{
+					'event':this.model.id,
+					limit:10,
+					'fixtures':1
 				}
 			});
 			new Table({
@@ -50,11 +102,11 @@ define(function(require){
 				refreshable:true,
 				header:false,
 				uiClass:'player-list',
-				title:i18n.__('Fixtures ' + model.get('competition').name + ' ' + model.get('season').name),
+				title:i18n.__('Fixtures'),
 				columns : [{
 					text : i18n.__('Date'),
 					renderer : function(value,data) {
-						return moment(value).format('MMM DD, YYYY');
+						return '<span title="' + moment(value).format('MMM DD, YYYY, hh:mm:ss') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
 					},
 					dataIndex : 'play_at'
 				},{
@@ -77,19 +129,15 @@ define(function(require){
 					dataIndex : 'team2'
 				}],
 				collection : matchs,
-				renderTo:me.$el.find('.col-lg-3:eq(1)').empty(),
-				onRefresh:function(){
-					me.collection.fetch();
-				}
+				renderTo:me.$el.find('.col-lg-3:eq(1)').empty()
 			});
 		},
 		listTeam:function(model){
 			var me = this;
-			team = new Team();
+			team = new Tables();
 			team.fetch({
 				data:{
-					'event':this.model.id,
-					type:1
+					'event':this.model.id
 				}
 			});
 			new Table({
@@ -104,29 +152,77 @@ define(function(require){
 					},
 					dataIndex : 'team_name'
 				},{
-					text : i18n.__('Matchs'),
+					text : i18n.__('M'),
 					renderer : function(value,data) {
+						if(data.wins !== null || data.draws !== null || data.loses !== null){
+							return data.wins + data.draws + data.loses;
+						}
 						return '-';
 					},
 					dataIndex : 'team_name'
 				},{
-					text : i18n.__('Wins'),
+					text : i18n.__('W'),
 					renderer : function(value,data) {
+						if(value !== null){
+							return value;
+						}
 						return '-';
 					},
-					dataIndex : 'team_name'
+					dataIndex : 'wins'
 				},{
-					text : i18n.__('Draws'),
+					text : i18n.__('D'),
 					renderer : function(value,data) {
+						if(value !== null){
+							return value;
+						}
 						return '-';
 					},
-					dataIndex : 'team_name'
+					dataIndex : 'draws'
 				},{
-					text : i18n.__('Loses'),
+					text : i18n.__('L'),
 					renderer : function(value,data) {
+						if(value !== null){
+							return value;
+						}
 						return '-';
 					},
-					dataIndex : 'team_name'
+					dataIndex : 'loses'
+				},{
+					text : i18n.__('GF'),
+					renderer : function(value,data) {
+						if(data.goals_for !== null){
+							return data.goals_for;
+						}
+						return '-';
+					},
+					dataIndex : 'goals_for'
+				},{
+					text : i18n.__('GA'),
+					renderer : function(value,data) {
+						if(data.goals_against !== null){
+							return data.goals_against;
+						}
+						return '-';
+					},
+					dataIndex : 'goals_against'
+				},{
+					text : i18n.__('+/-'),
+					renderer : function(value,data) {
+						if(data.goals_for !== null && data.goals_against !== null){
+							return data.goals_for - data.goals_against;
+						}
+						return '-';
+					},
+					dataIndex : 'goals_for'
+				},{
+					text : i18n.__('Pts'),
+					renderer : function(value,data) {
+						if(value !== null){
+							return value * 3 + data.draws * 1 + data.init_point;
+						}
+						return '-';
+					},
+					dataIndex : 'wins'
 				}],
 				collection : team,
 				renderTo:me.$el.find('.col-lg-6').empty(),

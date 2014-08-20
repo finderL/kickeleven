@@ -9,6 +9,7 @@ import web
 
 class hello:
     def GET(self, name):
-        session = web.config.session
-        render = web.template.render('templates', globals={'login': hasattr(session, 'login') and session.login})
+        #session = web.config.session
+        #render = web.template.render('templates', globals={'login': hasattr(session, 'login') and session.login})
+        render = web.template.render('templates')
         return render.index()

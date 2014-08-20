@@ -33,9 +33,6 @@ urls = (
 )
 app = web.application(urls, locals())
 
-if web.config.get('session') is None:
-    web.config.session = session = Session(app, SQLAStore())
-
 if __name__ == "__main__":
     #关掉stderr的输出位置
     import sys

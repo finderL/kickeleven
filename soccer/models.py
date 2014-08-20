@@ -274,6 +274,21 @@ class Team(ApiModel):
         query = object_session(self).query(Competition).with_parent(self,'competitions')
         return query.first()
 
+class Tables(ApiModel):
+    __tablename__ = 'tables'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    event_id = Column(Integer, ForeignKey('events.id'))
+    team_id = Column(Integer, ForeignKey('team.id'))
+    wins = Column(TINYINT(2))
+    draws = Column(TINYINT(2))
+    loses = Column(TINYINT(2))
+    goals_for = Column(TINYINT(2))
+    goals_against = Column(TINYINT(2))
+    init_point = Column(TINYINT(2), default = 0)
+    event = relationship("Events", foreign_keys="Tables.event_id")
+    team = relationship("Team", foreign_keys="Tables.team_id")
+
 class TeamPlayer(ApiModel):
     __tablename__ = 'teamplayer'
 
