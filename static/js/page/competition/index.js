@@ -58,13 +58,13 @@ define(function(require){
 							columns : [{
 								text : i18n.__('Date'),
 								renderer : function(value,data) {
-									return '<span title="' + moment(value).format('MMM DD, YYYY, hh:mm:ss') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
+									return '<span title="' + moment(value).format('MMM DD, YYYY HH:mm') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
 								},
 								dataIndex : 'play_at'
 							},{
 								text : i18n.__('Home'),
 								renderer : function(value,data) {
-									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 								},
 								dataIndex : 'team1'
 							},{
@@ -76,7 +76,7 @@ define(function(require){
 							},{
 								text : i18n.__('Away'),
 								renderer : function(value,data) {
-									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 								},
 								dataIndex : 'team2'
 							}],
@@ -106,13 +106,13 @@ define(function(require){
 				columns : [{
 					text : i18n.__('Date'),
 					renderer : function(value,data) {
-						return '<span title="' + moment(value).format('MMM DD, YYYY, hh:mm:ss') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
+						return '<span title="' + moment(value).format('MMM DD, YYYY, HH:mm') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
 					},
 					dataIndex : 'play_at'
 				},{
 					text : i18n.__('Home'),
 					renderer : function(value,data) {
-						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 					},
 					dataIndex : 'team1'
 				},{
@@ -124,7 +124,7 @@ define(function(require){
 				},{
 					text : i18n.__('Away'),
 					renderer : function(value,data) {
-						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/static/resources/clubs/'+value.owner.logo_id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 					},
 					dataIndex : 'team2'
 				}],

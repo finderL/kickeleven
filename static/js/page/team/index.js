@@ -76,7 +76,7 @@ define(function(require){
 					text : i18n.__('Team'),
 					renderer : function(value,data) {
 						var team = value.id != me.model.id ? value : data.team1;
-						return '<a data-item-id="'+team.id+'" href="/#team/'+team.id+'/"><img src="/static/resources/clubs/'+team.owner.logo_id +'.png" height="20" width="20"/></a>';
+						return '<a data-item-id="'+team.id+'" href="/#team/'+team.id+'/"><img src="/images/clubs/20_20/'+team.owner.id +'.png" height="20" width="20"/></a>';
 					},
 					dataIndex : 'team2'
 				}],
