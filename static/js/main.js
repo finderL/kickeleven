@@ -28,19 +28,19 @@ define(function(require){
 			text:'National',
 			menus:[{
 				text:'Premier League',
-				href:'/#competition/1/'
+				href:'/#!competition/1/'
 			},{
 				text:'La Liga',
-				href:'/#competition/2/'
+				href:'/#!competition/2/'
 			},{
 				text:'1.Bundesliga',
-				href:'/#competition/3/'
+				href:'/#!competition/3/'
 			},{
 				text:'Ligue 1',
-				href:'/#competition/4/'
+				href:'/#!competition/4/'
 			},{
 				text:'Serie A',
-				href:'/#competition/5/'
+				href:'/#!competition/5/'
 			}]
 		}]
 	})

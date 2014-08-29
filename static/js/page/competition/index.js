@@ -64,7 +64,7 @@ define(function(require){
 							},{
 								text : i18n.__('Home'),
 								renderer : function(value,data) {
-									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 								},
 								dataIndex : 'team1'
 							},{
@@ -76,7 +76,7 @@ define(function(require){
 							},{
 								text : i18n.__('Away'),
 								renderer : function(value,data) {
-									return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 								},
 								dataIndex : 'team2'
 							}],
@@ -112,7 +112,7 @@ define(function(require){
 				},{
 					text : i18n.__('Home'),
 					renderer : function(value,data) {
-						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+						return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 					},
 					dataIndex : 'team1'
 				},{
@@ -124,7 +124,7 @@ define(function(require){
 				},{
 					text : i18n.__('Away'),
 					renderer : function(value,data) {
-						return '<a data-item-id="'+value.id+'" href="/#team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+						return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
 					},
 					dataIndex : 'team2'
 				}],
@@ -148,7 +148,7 @@ define(function(require){
 				columns : [{
 					text : i18n.__('Club'),
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#team/'+data.id+'/">'+value+'</a>';
+						return '<a data-item-id="'+data.id+'" href="/#!team/'+data.id+'/">'+value+'</a>';
 					},
 					dataIndex : 'team_name'
 				},{

@@ -557,7 +557,7 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
                     match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at < datetime.datetime.utcnow()).order_by('-play_at')
             if kwargs.has_key('team'):
                 team = kwargs['team']
-                match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team))
+                match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
             match = paging(match, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()
@@ -589,7 +589,7 @@ def transfer(id=None, p=None, limit=None, admin=None, **kwargs):
                 transfer = query.filter(Transfer.player_id == int(player_id))
             if kwargs.has_key('taking_team'):
                 taking_team_id = kwargs['taking_team']
-                transfer = query.filter(Transfer.taking_team_id == int(taking_team_id))
+                transfer = query.filter(Transfer.taking_team_id == int(taking_team_id),Transfer.transfer_date < datetime.date.today())
             transfer = paging(transfer, limit, p)
             n = ResultWrapper(transfer, transfer=[v.to_api() for v in transfer],count=transfer.count())
     return n

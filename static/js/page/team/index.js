@@ -76,7 +76,7 @@ define(function(require){
 					text : i18n.__('Team'),
 					renderer : function(value,data) {
 						var team = value.id != me.model.id ? value : data.team1;
-						return '<a data-item-id="'+team.id+'" href="/#team/'+team.id+'/"><img src="/images/clubs/20_20/'+team.owner.id +'.png" height="20" width="20"/></a>';
+						return '<a data-item-id="'+team.id+'" href="/#!team/'+team.id+'/"><img src="/images/clubs/20_20/'+team.owner.id +'.png" height="20" width="20"/></a>';
 					},
 					dataIndex : 'team2'
 				}],
@@ -99,30 +99,6 @@ define(function(require){
 				title:'Recent Tranfer',
 				collection : taking_transfer,
 				renderTo:this.$el.find('.col-lg-3:eq(1)')
-			});
-		},
-		listClubTeam:function(collection){
-			var me = this;
-			new Table({
-				loading:true,
-				header:false,
-				refreshable:true,
-				uiClass:'player-list',
-				title:i18n.__('National Teams'),
-				columns : [{
-					text : i18n.__('National Teams'),
-					flex : 1,
-					sortable : false,
-					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#team/'+data.id+'/">'+value+'</a>';
-					},
-					dataIndex : 'team_name'
-				}],
-				collection : collection,
-				renderTo:me.$el.find('.col-lg-3:eq(0)'),
-				onRefresh:function(){
-					me.collection.fetch();
-				}
 			});
 		},
 		listSquad:function(e){

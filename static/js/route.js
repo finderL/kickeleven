@@ -6,6 +6,10 @@ define(function(require) {
 	//var site = require('./admin/admin').site,
 	//patterns = require('./admin/admin').patterns,
 	var route = Backbone.Router.prototype.route;
+	Backbone.history.getHash = function(window) {
+		var match = (window || this).location.href.match(/#!(.*)$/);
+		return match ? match[1] : '';
+    }
 	return Backbone.Router.extend({
 		container : taurus.$body.find('>.container'),
 		initialize : function() {

@@ -28,7 +28,7 @@ define(function(require){
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#club/'+data.id+'/">'+value+'</a>';
+						return '<a data-item-id="'+data.id+'" href="/#!club/'+data.id+'/">'+value+'</a>';
 					},
 					dataIndex : 'name'
 				}, {

@@ -47,7 +47,7 @@ define(function(require){
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#competition/'+data.id+'/">'+value+'</a>';
+						return '<a data-item-id="'+data.id+'" href="/#!competition/'+data.id+'/">'+value+'</a>';
 					},
 					dataIndex : 'name'
 				}],
@@ -71,7 +71,7 @@ define(function(require){
 					flex : 1,
 					sortable : false,
 					renderer : function(value,data) {
-						return '<a data-item-id="'+data.id+'" href="/#team/'+data.id+'/">'+value+'</a>';
+						return '<a data-item-id="'+data.id+'" href="/#!team/'+data.id+'/">'+value+'</a>';
 					},
 					dataIndex : 'team_name'
 				}],
