@@ -695,8 +695,7 @@ class PublicApi:
     def render_api_response(self, rv, format="json", servertime=None):
         if isinstance(rv, Exception):
             o = {"message": rv.message}
-            web.header('Content-Type', 'application/json')
-            return json.dumps(o)
+            raise web.badrequest(rv.message)
         else:
             o = {"status": "ok"}
             # TODO make this into something real
