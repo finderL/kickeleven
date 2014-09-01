@@ -7,6 +7,7 @@ Created on 2011-9-12
 '''
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
+from webapi import HTTPError,BadRequest
 from sqlalchemy.orm import class_mapper
 from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, Tables, Events, EventsTeams,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Matchs,Rounds
 from settings import TEMP_DIR
@@ -14,6 +15,14 @@ from sqlalchemy.types import String
 from sqlalchemy import desc,or_
 
 PAGE_ARGS = ('limit','p')
+
+class BadApiRequest(BadRequest):
+    """`400 Bad Request` error."""
+    message = "bad request"
+    def __init__(self, message=None):
+        status = "400 Bad Request"
+        headers = {'Content-Type': 'text/json'}
+        HTTPError.__init__(self, status, headers, message or self.message)
 
 def paging(query, limit=None, p=None):
     if p is None:
@@ -559,7 +568,7 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
                 team = kwargs['team']
                 match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
             match = paging(match, limit, p)
-            n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
+            n = ResultWrapper(match, match=[v.to_api() for v in match],count=query.count())
     db.close()
     return n
 
@@ -693,13 +702,17 @@ class PublicApi:
         return self.render_api_response(e, format)
     
     def render_api_response(self, rv, format="json", servertime=None):
-        o = {"status": "ok"}
-        # TODO make this into something real
-        rv = {"rv": rv.to_api()}
-        o.update(rv)
+        if isinstance(rv, Exception):
+            o = {"message": rv.message}
+            raise web.badrequest(rv.message)
+        else:
+            o = {"status": "ok"}
+            # TODO make this into something real
+            rv = {"rv": rv.to_api()}
+            o.update(rv)
 
-        web.header('Content-Type', 'application/json')
-        return json.dumps(o)
+            web.header('Content-Type', 'application/json')
+            return json.dumps(o)
 #         o = {"status": "ok"}
 #         rv = {"rv": rv}
 #         o.update(rv)

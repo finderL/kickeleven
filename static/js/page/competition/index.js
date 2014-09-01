@@ -40,12 +40,21 @@ define(function(require){
 		},
 		listResults:function(model){
 			var me = this,
-			matchs = new Match();
-			matchs.fetch({
+			option = {
 				data:{
 					'event':this.model.id,
 					limit:10,
 					'results':1
+				},
+				error:function(collection, response, options){
+					require.async('../../taurus/widget/prompt',function(Prompt){
+						(new Prompt({
+							'title':'Error',
+							'content':'You got an error, try again?',
+						})).on('confirm',function(){
+							collection.fetch(option)
+						}).show()
+					})
 				},
 				success:function(collection){
 					if(collection.length){
@@ -85,52 +94,69 @@ define(function(require){
 						});
 					}
 				}
-			});
+			},
+			matchs = new Match();
+			matchs.fetch(option);
 		},
 		listFixtures:function(model){
 			var me = this,
-			matchs = new Match();
-			matchs.fetch({
+			option = {
 				data:{
 					'event':this.model.id,
 					limit:10,
 					'fixtures':1
+				},
+				error:function(collection, response, options){
+					require.async('../../taurus/widget/prompt',function(Prompt){
+						(new Prompt({
+							'title':'Error',
+							'content':'You got an error, try again?',
+						})).on('confirm',function(){
+							collection.fetch(option)
+						}).show()
+					})
+				},
+				success:function(collection){
+					if(collection.length){
+						new Table({
+							loading:true,
+							refreshable:true,
+							header:false,
+							uiClass:'player-list',
+							title:i18n.__('Fixtures'),
+							columns : [{
+								text : i18n.__('Date'),
+								renderer : function(value,data) {
+									return '<span title="' + moment(value).format('MMM DD, YYYY, HH:mm') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
+								},
+								dataIndex : 'play_at'
+							},{
+								text : i18n.__('Home'),
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+								},
+								dataIndex : 'team1'
+							},{
+								text : i18n.__('Result'),
+								renderer : function(value,data) {
+									return [data.score1 !== null ? data.score1 : '-',data.score2 !== null ? data.score2 : '-'].join(':');
+								},
+								dataIndex : 'team2'
+							},{
+								text : i18n.__('Away'),
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+								},
+								dataIndex : 'team2'
+							}],
+							collection : matchs,
+							renderTo:me.$el.find('.col-lg-3:eq(1)').empty()
+						});
+					}
 				}
-			});
-			new Table({
-				loading:true,
-				refreshable:true,
-				header:false,
-				uiClass:'player-list',
-				title:i18n.__('Fixtures'),
-				columns : [{
-					text : i18n.__('Date'),
-					renderer : function(value,data) {
-						return '<span title="' + moment(value).format('MMM DD, YYYY, HH:mm') + '">' + moment(value).format('MMM DD, YYYY') + '</span>';
-					},
-					dataIndex : 'play_at'
-				},{
-					text : i18n.__('Home'),
-					renderer : function(value,data) {
-						return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
-					},
-					dataIndex : 'team1'
-				},{
-					text : i18n.__('Result'),
-					renderer : function(value,data) {
-						return [data.score1 !== null ? data.score1 : '-',data.score2 !== null ? data.score2 : '-'].join(':');
-					},
-					dataIndex : 'team2'
-				},{
-					text : i18n.__('Away'),
-					renderer : function(value,data) {
-						return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
-					},
-					dataIndex : 'team2'
-				}],
-				collection : matchs,
-				renderTo:me.$el.find('.col-lg-3:eq(1)').empty()
-			});
+			},
+			matchs = new Match();
+			matchs.fetch(option);
 		},
 		listTeam:function(model){
 			var me = this;

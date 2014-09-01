@@ -3,15 +3,15 @@
  */
 define(function(require) {
 	var Dialog = require('./dialog');
-	return taurus.view("taurus.widget.Prompt", Dialog.extend({
+	return Dialog.extend({
 		disabled:false,
 		buttons:[{
-			text:'取消',
+			text:'Cancel',
 			handler:'cancel',
 			className:'btn-default',
 			disabled:false
 		},{
-			text:'确定',
+			text:'Confirm',
 			handler:'confirm',
 			className:'btn-primary',
 			disabled:false
@@ -61,5 +61,5 @@ define(function(require) {
 			this.disabled = false;
 			this.renderButttons();
 		}
-	}));
+	});
 });
