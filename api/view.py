@@ -559,7 +559,7 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
                 team = kwargs['team']
                 match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
             match = paging(match, limit, p)
-            n = ResultWrapper(match, match=[v.to_api() for v in match],count=query.count())
+            n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()
     return n
 
