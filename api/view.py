@@ -15,14 +15,6 @@ from sqlalchemy import desc,or_
 
 PAGE_ARGS = ('limit','p')
 
-class BadApiRequest(BadRequest):
-    """`400 Bad Request` error."""
-    message = "bad request"
-    def __init__(self, message=None):
-        status = "400 Bad Request"
-        headers = {'Content-Type': 'text/json'}
-        HTTPError.__init__(self, status, headers, message or self.message)
-
 def paging(query, limit=None, p=None):
     if p is None:
         p = 1
