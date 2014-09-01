@@ -7,7 +7,6 @@ Created on 2011-9-12
 '''
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
-from webapi import HTTPError,BadRequest
 from sqlalchemy.orm import class_mapper
 from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, Tables, Events, EventsTeams,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Matchs,Rounds
 from settings import TEMP_DIR
