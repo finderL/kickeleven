@@ -5,7 +5,7 @@ define(function(require){
 	var Base = require('../taurus/view/base'),
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
-		tpl:['<img src="/static/resources/players/<%=avatar_id%>.png" />'].join(''),
+		tpl:['<img src="/images/players/120_120/<%=id%>.png" />'].join(''),
 		tagName:'a',
         className:'profile-picture pull-left media-thumbnail js-nav js-tooltip',
         initialize:function(){

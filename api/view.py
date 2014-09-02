@@ -589,7 +589,7 @@ def transfer(id=None, p=None, limit=None, admin=None, **kwargs):
                 transfer = query.filter(Transfer.player_id == int(player_id))
             if kwargs.has_key('taking_team'):
                 taking_team_id = kwargs['taking_team']
-                transfer = query.filter(Transfer.taking_team_id == int(taking_team_id),Transfer.transfer_date < datetime.date.today())
+                transfer = query.filter(Transfer.taking_team_id == int(taking_team_id),Transfer.transfer_date <= datetime.date.today())
             transfer = paging(transfer, limit, p)
             n = ResultWrapper(transfer, transfer=[v.to_api() for v in transfer],count=transfer.count())
     return n

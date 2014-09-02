@@ -7,7 +7,7 @@ define(function(require){
 	Table = require('../taurus/view/table'),
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
-		tpl:'<%_.each(transfers,function(transfer){%><div class="transfer-summary"><div class="content"><a class="js-player-profile-link user-thumb" href="/#player/<%=transfer.player_id%>/" data-player-id="<%=transfer.player_id%>"><img class="avatar js-action-profile-avatar" src="/static/resources/players/<%=transfer.player.avatar_id%>.png" alt="">\
+		tpl:'<%_.each(transfers,function(transfer){%><div class="transfer-summary"><div class="content"><a class="js-player-profile-link user-thumb" href="/#player/<%=transfer.player_id%>/" data-player-id="<%=transfer.player_id%>"><img class="avatar js-action-profile-avatar" src="/images/players/48_48/<%=transfer.player.id%>.png" alt="">\
       <span class="account-group-inner js-action-profile-name" data-player-id="<%=transfer.player_id%>">\
         <b class="fullname"><%=transfer.player.name%></b>\
       </span>\
