@@ -11,6 +11,7 @@ define(function(require){
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
 			var collection = new Transfer();
+			this.model.set('transfer',collection);
 			collection.fetch({
 				data:{
 					player:this.model.id

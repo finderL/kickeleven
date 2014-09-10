@@ -45,5 +45,41 @@ define(function(require){
 		}]
 	})
 	new Router;
+	var modelFetch = Backbone.Model.prototype.fetch;
+    Backbone.Model.prototype.fetch = function(options){
+    	options = options ? _.clone(options) : {};
+    	var model = this;
+    	var error = options.error;
+    	options.error = function(resp){
+    		require.async('../../taurus/widget/prompt',function(Prompt){
+    			(new Prompt({
+    				'title':'Error',
+    				'content':'You got an error, try again?',
+	            })).on('confirm',function(){
+    				model.fetch(options);
+	            }).show();
+	        });
+	        if (error) error(model, resp, options);
+        };
+        modelFetch.call(this,options);
+    };
+	var collectionFetch = Backbone.Collection.prototype.fetch;
+    Backbone.Collection.prototype.fetch = function(options){
+    	options = options ? _.clone(options) : {};
+    	var collection = this;
+    	var error = options.error;
+    	options.error = function(resp){
+    		require.async('../../taurus/widget/prompt',function(Prompt){
+    			(new Prompt({
+    				'title':'Error',
+    				'content':'You got an error, try again?',
+	            })).on('confirm',function(){
+    				collection.fetch(options);
+	            }).show();
+	        });
+	        if (error) error(collection, resp, options);
+        };
+        collectionFetch.call(this,options);
+    }
 	Backbone.history.start();
 });

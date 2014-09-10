@@ -17,6 +17,7 @@ define(function(require){
 				renderTo:this.$el.find('.modal-body')
 			})
 			this.$el.addClass('profile-popup-container')
+			this.model.get('transfer').on('sync',this.position,this)
 		}
 	});
 });
