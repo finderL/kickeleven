@@ -46,16 +46,6 @@ define(function(require){
 					limit:10,
 					'results':1
 				},
-				error:function(collection, response, options){
-					require.async('../../taurus/widget/prompt',function(Prompt){
-						(new Prompt({
-							'title':'Error',
-							'content':'You got an error, try again?',
-						})).on('confirm',function(){
-							collection.fetch(option)
-						}).show()
-					})
-				},
 				success:function(collection){
 					if(collection.length){
 						new Table({
@@ -105,16 +95,6 @@ define(function(require){
 					'event':this.model.id,
 					limit:10,
 					'fixtures':1
-				},
-				error:function(collection, response, options){
-					require.async('../../taurus/widget/prompt',function(Prompt){
-						(new Prompt({
-							'title':'Error',
-							'content':'You got an error, try again?',
-						})).on('confirm',function(){
-							collection.fetch(option)
-						}).show()
-					})
 				},
 				success:function(collection){
 					if(collection.length){
