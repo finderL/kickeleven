@@ -51,7 +51,7 @@ define(function(require){
     	var model = this;
     	var error = options.error;
     	options.error = function(resp){
-    		require.async('../../taurus/widget/prompt',function(Prompt){
+    		require.async('./taurus/widget/prompt',function(Prompt){
     			(new Prompt({
     				'title':'Error',
     				'content':'You got an error, try again?',
@@ -69,7 +69,7 @@ define(function(require){
     	var collection = this;
     	var error = options.error;
     	options.error = function(resp){
-    		require.async('../../taurus/widget/prompt',function(Prompt){
+    		require.async('./taurus/widget/prompt',function(Prompt){
     			(new Prompt({
     				'title':'Error',
     				'content':'You got an error, try again?',
