@@ -48,21 +48,18 @@ define(function(require) {
 			if(a.get('wins') !== null && b.get('wins') === null){
 				return -1;
 			}
-			if(a.get('wins') > b.get('wins')){
+			var pts1 = a.get('wins')*3 + a.get('draws')*1,
+			pts2 = b.get('wins')*3 + b.get('draws')*1;
+			if(pts1 > pts2){
 				return -1;
 			}
-			if(a.get('wins') == b.get('wins')){
-				if(a.get('draws') > b.get('draws')){
-					return -1;
-				}
-			}
-			if(a.get('wins') == b.get('wins') && a.get('draws') == b.get('draws')){
+			if(pts1 == pts2){
 				if(a.get('goals_for') - a.get('goals_against') > b.get('goals_for') - b.get('goals_against')){
 					return -1;
 				}
 			}
 			if(a.get('wins') == b.get('wins') && a.get('draws') == b.get('draws') && a.get('goals_for') - a.get('goals_against') == b.get('goals_for') - b.get('goals_against')){
-				if(a.get('goals_for') < b.get('goals_for')){
+				if(a.get('goals_for') > b.get('goals_for')){
 					return -1;
 				}
 			}
