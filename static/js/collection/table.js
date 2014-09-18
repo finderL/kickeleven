@@ -62,7 +62,7 @@ define(function(require) {
 				}
 			}
 			if(a.get('wins') == b.get('wins') && a.get('draws') == b.get('draws') && a.get('goals_for') - a.get('goals_against') == b.get('goals_for') - b.get('goals_against')){
-				if(a.get('goals_for') > b.get('goals_for')){
+				if(a.get('goals_for') < b.get('goals_for')){
 					return -1;
 				}
 			}
