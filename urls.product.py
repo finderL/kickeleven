@@ -29,8 +29,7 @@ urls = (
     '/admin/', 'Admin',
     '/login/', 'Login',
     '/logout/', 'Logout',
-    '/images/(.*)','Images',
-    '/(.*)', 'hello'
+    '/images/(.*)','Images'
 )
 app = web.application(urls, locals())
 

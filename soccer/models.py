@@ -438,3 +438,35 @@ class Matchs(ApiModel):
         o['team2'] = self.team2.to_api(admin)
         o['round'] = self.round.to_api()
         return o
+    
+class MatchEvents(ApiModel):
+    __tablename__ = 'match_events'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    player_id = Column(Integer, ForeignKey(Player.id))
+    match_id = Column(Integer, ForeignKey(Matchs.id))
+    team_id = Column(Integer, ForeignKey(Team.id)) # or Column(String(30))
+    minute = Column(TINYINT(3))
+    offset = Column(TINYINT(2))
+    match = relationship("Matchs", foreign_keys="MatchEvents.match_id")
+    team = relationship("Team", foreign_keys="MatchEvents.team_id")
+    player = relationship("Player", foreign_keys="MatchEvents.player_id")
+    
+    __mapper_args__ = {
+        "order_by":["minute"]
+    }
+    
+    def to_api(self):
+        o = super(MatchEvents, self).to_api()
+        o['player'] = self.player.to_api(None)
+        o['team'] = self.team.to_api(None)
+        return o
+
+class Goals(ApiModel):
+    __tablename__ = 'goal_events'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    event_id = Column(Integer, ForeignKey(MatchEvents.id))
+    penalty = Column(Boolean,default=False)
+    owngoal = Column(Boolean,default=False)
+    event = relationship("MatchEvents", backref=backref("goal", uselist=False), foreign_keys="Goals.event_id")

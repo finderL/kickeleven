@@ -17,7 +17,7 @@ class hello:
             response = urllib2.urlopen(request)
             return response.read()
         else:
-            render = web.template.render('templates')
+            render = web.template.render('')
             return render.index()
 
 class Images:

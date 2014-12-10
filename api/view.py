@@ -7,8 +7,9 @@ Created on 2011-9-12
 '''
 import datetime, json, web, urlparse, StringIO, hashlib
 from PIL import Image
+from db.models import engine
 from sqlalchemy.orm import class_mapper
-from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, NationTranslation, Competition,Team, Tables, Events, EventsTeams,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Matchs,Rounds
+from soccer.models import DB_Session, Continent, _to_api, Player, PlayerTranslation, Nation, Goals, MatchEvents,NationTranslation, Competition,Team, Tables, Events, EventsTeams,TeamPlayer, Position, PlayerPosition, Club, ClubTranslation, City, Transfer, Matchs,Rounds
 from settings import TEMP_DIR
 from sqlalchemy.types import String
 from sqlalchemy import desc,or_
@@ -554,12 +555,54 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
                 if kwargs.has_key('fixtures'):
                     match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at > datetime.datetime.utcnow())
                 else:
-                    match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at < datetime.datetime.utcnow()).order_by('-play_at')
+                    match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at < datetime.datetime.utcnow(),Matchs.score1 != None).order_by('-play_at')
             if kwargs.has_key('team'):
                 team = kwargs['team']
                 match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
             match = paging(match, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
+    db.close()
+    return n
+
+def goals(id=None, p=None, limit=None,admin=None,**kwargs):
+    db = DB_Session()
+    query = db.query(MatchEvents)
+    if web.ctx.method in ('POST','PUT','PATCH'):
+        i=json.loads(web.data())
+        if web.ctx.method in ('PUT','PATCH'):
+            goal = query.get(int(id))
+            for name,value in i.items():
+                setattr(goal, name, value)
+        else:
+            goal = Goals(**i)
+            db.add(goal)
+            db.flush()
+            db.refresh(goal)
+        db.commit()
+        n = ResultWrapper(goal, goal=goal.to_api(admin))
+    else:
+        if id:
+            goal = query.get(int(id))
+            goal = goal.to_api(admin)
+            n = ResultWrapper(goal, goal=goal)
+        else:
+            if kwargs.has_key('match'):
+                match = kwargs['match']
+                result = engine.execute("""SELECT match_events.id AS id,match_events.minute AS minute,match_events.offset AS offset,goal_events.penalty AS penalty,goal_events.owngoal AS owngoal,match_events.match_id AS match_id,match_events.player_id AS player_id,match_events.team_id AS team_id FROM `match_events` 
+                    JOIN `goal_events` ON goal_events.event_id = match_events.id WHERE match_events.match_id = """+match+""" ORDER BY match_events.minute""")
+                goal = query.instances(result)
+                #goal = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at > datetime.datetime.utcnow())
+            if kwargs.has_key('team'):
+                team = kwargs['team']
+                match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
+            goal = paging(goal, limit, p)
+            goals = []
+            for v in goal:
+                goal_event = v.goal.to_api()
+                event = v.to_api()
+                goal_event.update(event)
+                goals.append(goal_event)
+            n = ResultWrapper(goal, goal=goals,count=query.count())
     db.close()
     return n
 
@@ -634,6 +677,7 @@ class PublicApi:
                "team":team,
                "tables":tables,
                "matchs":matchs,
+               "goals":goals,
                "clubsquad":clubsquad,
                "nationsquad":nationsquad,
                'teamplayer':teamplayer,

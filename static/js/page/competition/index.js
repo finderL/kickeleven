@@ -9,12 +9,38 @@ define(function(require){
 	Tables = require('../../collection/table'),
 	Team = require('../../collection/team'),
 	Match = require('../../collection/match'),
+	Goal = require('../../collection/goal'),
 	Nation = require('../../model/nation'),
 	ProfileSidebar = require('../../view/competitionProfileSidebar'),
 	i18n = require('../../i18n/{locale}');
 	return Base.extend({
 		events:{
-			'click .player-list a':'playerSummary'
+			'click .player-list a':'playerSummary',
+			'click .results-table tr':function(e){
+				var goals = new Goal(),
+				$target = $(e.currentTarget),
+				id = $target.attr('data-item-id'),
+				result =this.results.get(id);
+				if($target.hasClass('expand')){
+					$target.removeClass('expand');
+					$target.nextAll('[data-match-id]').remove();
+				} else {
+					goals.fetch({
+						data:{
+							match:id
+						},
+						success:function(collection){
+							$target.after(collection.map(function(model){
+								var goals_info = '<img class="" src="/images/players/20_20/<%=player.id%>.png" alt="<%=player.name%>">';
+								if(model.get('owngoal')){
+									goals_info += '(OG)';
+								}
+								return _.template('<tr data-match-id="'+result.id+'"><td></td><td>'+(model.get('team_id') == result.get('team1_id') ? goals_info:'')+'</td><td><%=minute%></td><td>'+(model.get('team_id') == result.get('team2_id') ? goals_info:'')+'</td></tr>',model.toJSON())
+							}).join('')).addClass('expand');
+						}
+					});
+				}
+			}
 		},
 		tpl:'<div class="col-lg-3"></div><div class="col-lg-6"></div><div class="col-lg-3"></div>',
 		initialize:function(options){
@@ -50,9 +76,10 @@ define(function(require){
 					if(collection.length){
 						new Table({
 							loading:true,
+							rowTemplate:'<tr data-item-id="<%=id%>">',
 							refreshable:true,
 							header:false,
-							uiClass:'player-list',
+							uiClass:'results-table',
 							title:i18n.__('Results'),
 							columns : [{
 								text : i18n.__('Date'),
@@ -69,7 +96,7 @@ define(function(require){
 							},{
 								text : i18n.__('Result'),
 								renderer : function(value,data) {
-									return [data.score1 !== null ? data.score1 : '-',data.score2 !== null ? data.score2 : '-'].join(':');
+									return [data.score1 !== null ? data.score1 : '0',data.score2 !== null ? data.score2 : '0'].join(':');
 								},
 								dataIndex : 'team2'
 							},{
@@ -84,9 +111,9 @@ define(function(require){
 						});
 					}
 				}
-			},
-			matchs = new Match();
-			matchs.fetch(option);
+			};
+			this.results = new Match();
+			this.results.fetch(option);
 		},
 		listFixtures:function(model){
 			var me = this,
@@ -119,7 +146,7 @@ define(function(require){
 							},{
 								text : i18n.__('Result'),
 								renderer : function(value,data) {
-									return [data.score1 !== null ? data.score1 : '-',data.score2 !== null ? data.score2 : '-'].join(':');
+									return 'vs'
 								},
 								dataIndex : 'team2'
 							},{
