@@ -2,12 +2,13 @@
  * @author nttdocomo
  */
 define(function(require){
+	console.log('OK')
+	var Menu = require('./taurus/menu/navbar');
 	require('./taurus/taurus');
-	var Menu = require('./taurus/menu/menu');
-	var Router = require('./route');
-	var panel,
-		clubCreatePanel,
-		messageDialog,
+	var Router = require('./route'),
+	panel,
+	clubCreatePanel,
+	messageDialog,
 	i18n = require('./i18n/{locale}');
 	taurus.augmentObject('taurus',{
 		POSITION:['Striker','Attack Midfielder','Midfielder','Defensive Midfielder','Wing Back','Defender','Sweeper','Goalkeeper']
@@ -23,27 +24,36 @@ define(function(require){
 		return false;
 	});
 	new Menu({
-		triggerEl:$('.navbar-collapse > .navbar-nav:eq(0) > li:eq(2) > a'),
-		menus:[{
-			text:'National',
-			menus:[{
-				text:'Premier League',
-				href:'/#!competition/1/'
-			},{
-				text:'La Liga',
-				href:'/#!competition/2/'
-			},{
-				text:'1.Bundesliga',
-				href:'/#!competition/3/'
-			},{
-				text:'Ligue 1',
-				href:'/#!competition/4/'
-			},{
-				text:'Serie A',
-				href:'/#!competition/5/'
-			}]
+		renderTo:$('.navbar-collapse'),
+		items:[{
+			text:'Home'
+		},{
+			text:'Player'
+		},{
+			text:'Competition',
+			menu:{
+				items:[{
+					text:'National',
+					menu:[{
+						text:'Premier League',
+						href:'/#!competition/1/'
+					},{
+						text:'La Liga',
+						href:'/#!competition/2/'
+					},{
+						text:'1.Bundesliga',
+						href:'/#!competition/3/'
+					},{
+						text:'Ligue 1',
+						href:'/#!competition/4/'
+					},{
+						text:'Serie A',
+						href:'/#!competition/5/'
+					}]
+				}]
+			}
 		}]
-	})
+	});
 	new Router;
 	var modelFetch = Backbone.Model.prototype.fetch;
     Backbone.Model.prototype.fetch = function(options){

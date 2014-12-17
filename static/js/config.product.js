@@ -11,7 +11,7 @@ seajs.config({
 		"backbone.paginator":"http://cdnjs.cloudflare.com/ajax/libs/backbone.paginator/0.8/backbone.paginator.min.js",
 		"moment" : "http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"
 	},
-	//map : [['http://www.kick11.us/static/js/taurus/', 'http://www.kick11.us/static/js/taurus/src/']],
+	map : [['http://www.kick11.us/static/js/taurus/', 'http://taurus.kick11.us/']],
 	preload : ['plugin-text'],
 	vars : {
 		'locale' : (navigator.language || navigator.browserLanguage).toLowerCase()

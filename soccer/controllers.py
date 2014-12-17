@@ -10,15 +10,9 @@ from PIL import Image
 from settings import STATIC_DIR
 
 class hello:
-    def GET(self, name):
-        params = dict(urlparse.parse_qsl(web.ctx.query.replace('?', '')))
-        if params.has_key('_escaped_fragment_'):
-            request = urllib2.Request('http://localhost:8088/' + params['_escaped_fragment_'], headers={"X-Forwarded-Host" : web.ctx.host})
-            response = urllib2.urlopen(request)
-            return response.read()
-        else:
-            render = web.template.render('')
-            return render.index()
+    def GET(self):
+        render = web.template.render('templates')
+        return render.index()
 
 class Images:
     def GET(self, path):
