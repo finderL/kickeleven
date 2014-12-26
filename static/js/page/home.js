@@ -2,9 +2,11 @@
  * @author nttdocomo
  */
 define(function(require){
-	require('moment');
-	var Base = require('./base');
-	var Table = require('../taurus/panel/table'),
+	var Base = require('./base'),
+	Panel = require('../taurus/panel/panel'),
+	Table = require('../taurus/panel/table'),
+	Match = require('../collection/match'),
+	Tables = require('../collection/table'),
 	i18n = require('../i18n/zh-cn');
 	return taurus.view('taurus.page.Home',Base.extend({
 		events:{
@@ -13,195 +15,181 @@ define(function(require){
 			'click .club-panel a':'clubSummary',
 			'click .club-panel .list-group-item:eq(0)':'squad'
 		},
-		tpl:'<div class="col-lg-2 flex-height"><ul class="nav nav-pills nav-stacked"><li class="active"><a href="#" data-item-type="player">'+i18n.__("Player")+'</a></li><li><a href="#" data-item-type="club">'+i18n.__("Club")+'</a></li></ul></div><div class="col-lg-2 flex-height"></div><div class="col-lg-2 flex-height"></div><div class="col-lg-6 flex-height"></div>',
+		tpl:'<div class="col-lg-3 flex-height"></div><div class="col-lg-3 flex-height"></div><div class="col-lg-3 flex-height"></div><div class="col-lg-3 flex-height"></div>',
 		initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
-			this.listPlayer();
+			this.recentMatch();
+			this.table();
 		},
-		listPlayer:function(){
-			var me = this;
-			require.async(['../collection/player','../taurus/panel/table'],function(Player,Panel){
-				me.player = me.player || new Player;
-				new Panel({
-					loading:true,
-					refreshable:true,
-					uiClass:'player-list flex-height',
-					title:i18n.__('Player'),
-					columns : [{
-						text : i18n.__('Full Name'),
-						flex : 1,
-						sortable : false,
-						renderer : function(value,data) {
-							return '<a data-item-id="'+data.id+'" href="/#player/'+data.id+'/">'+value+'</a>'
-						},
-						dataIndex : 'full_name'
-					}, {
-						text : i18n.__('Nation'),
-						sortable : true,
-						renderer : function(value) {
-							var result = [];
-							if(value){
-								return value.short_name;
-							} else {
-								return '-';
-							}
-						},
-						dataIndex : 'nation'
-					}],
-					collection : me.player,
-					renderTo:me.$el.find('.col-lg-2:eq(1)').empty(),
-					onRefresh:function(){
-						this.collection.fetch();
-					}
-				});
-				me.player.length || me.player.fetch();
-			});
+		nextMatch:function(model){
+			console.log(model);
+			new Panel({
+				title:i18n.__('Next Match'),
+				content:'<div class="container-fluid"><div class="row"><div class="col-lg-5"><img src="/images/clubs/'+model.get('team1').owner.id+'.png"></div><div class="col-lg-2"></div><div class="col-lg-5"><img src="/images/clubs/'+model.get('team2').owner.id+'.png"></div></div></div>',
+				renderTo:this.$el.find('>.col-lg-3:eq(0)')
+			})
 		},
-		listClub:function(){
-			var me = this;
-			require.async(['../collection/club','../taurus/panel/table'],function(Club,Panel){
-				me.club = me.club || new Club;
-				new Panel({
-					loading:true,
-					refreshable:true,
-					uiClass:'club-panel flex-height',
-					title:i18n.__('Club'),
-					columns : [{
-						text : i18n.__('Club Name'),
-						flex : 1,
-						sortable : false,
-						renderer : function(value,data) {
-							return '<a data-item-id="'+data.id+'" href="/#club/'+data.id+'/">'+value+'</a>'
-						},
-						dataIndex : 'club_name'
-					}, {
-						text : i18n.__('Nation'),
-						sortable : true,
-						renderer : function(value) {
-							if(value){
-								return value.short_name;
-							} else {
-								return '-';
-							}
-						},
-						dataIndex : 'nation'
-					}],
-					renderTo:me.$el.find('.col-lg-2:eq(1)').empty(),
-					collection:me.club,
-					onRefresh:function(){
-						this.collection.fetch()
-					}
-				});
-				me.club.length || me.club.fetch();
-			});
-		},
-		navigate:function(e){
+		recentMatch:function(){
 			var me = this,
-				target = $(e.target),
-				parent = target.parent(),
-				type = target.attr('data-item-type');
-			if(!parent.hasClass('active')){
-				if(type == 'player'){
-					this.listPlayer();
-				}
-				if(type == 'club'){
-					this.listClub();
-				}
-				parent.addClass('active').siblings().removeClass('active')
-			}
-			return false;
-		},
-		playerSummary:function(e){
-			var me = this;
-			require.async(['../panel/playerPanel'],function(Panel){
-				var model = me.player.get($(e.target).attr('data-item-id'))
-				new Panel({
-					model:me.player.get($(e.target).attr('data-item-id')),
-					renderTo:me.$el.find('.col-lg-2:eq(2)').empty()
-				})
-				model.fetch()
-			});
-			return false;
-		},
-		clubSummary:function(e){
-			var me = this;
-			require.async(['../panel/clubPanel'],function(Panel){
-				new Panel({
-					model:me.club.get($(e.target).attr('data-item-id')),
-					renderTo:me.$el.find('.col-lg-2:eq(2)').empty()
-				});
-			});
-			return false;
-		},
-		squad:function(e){
-			var me= this, id = $(e.target).attr('data-item-id'), club = me.club.get(id);
-			require.async(['../collection/squad','../taurus/panel/table'],function(Squad,Panel){
-				var squad;
-				if(!club.has('squad')){
-					squad = new Squad;
-					club.set('squad',squad)
-					squad.club = club
-				} else {
-					squad = club.get('squad')
-				}
-				if(!squad.length){
-					squad.fetch()
-				}
-				new Panel({
-					pager:false,
-					refreshable:true,
-					uiClass:'squad-panel flex-height',
-					title:i18n.__('Squad'),
-					columns : [{
-						text : i18n.__('Full Name'),
-						flex : 1,
-						sortable : false,
-						renderer : function(value,data) {
-							return '<span data-item-id="'+data.id+'">'+value+'</span>'
-						},
-						dataIndex : 'full_name'
-					}, {
-						text : i18n.__('Nation'),
-						sortable : true,
-						renderer : function(value) {
-							return value.short_name;
-							/*var result = [];
-							if(value){
-								if(value.length === 1){
-									return value[0].nation_name;
-								} else {
-									_.each(value,function(item){
-										result.push(item.nation_name);
-									});
-									return result.join('/');
-								}
-							} else {
-								return '-'
-							}*/
-						},
-						dataIndex : 'nation'
-					}, {
-						text : i18n.__('Pos'),
-						flex : 1,
-						sortable : false,
-						renderer : function(value,data) {
-							value = _.sortBy(value, function(position){ return position.point; });
-							return _.map(value,function(position){
-								return _.find(k11.POSITION,function(item){
-									return item.value == position.position_name;
-								})['text'] + _.find(k11.SIDE,function(item){
-									return item.value == position.side;
-								})['text'];
-							}).join('/');
-						},
-						dataIndex : 'position'
-					}],
-					collection:squad,
-					renderTo:me.$el.find('.col-lg-6').empty(),
-					onRefresh:function(){
-						this.collection.fetch();
+			matches = new Match();
+			matches.fetch({
+				data:{
+					'limit':10,
+					'start':moment().format('YYYY-MM-DD hh:mm:ss')
+				},
+				success:function(collection){
+					if(collection.length){
+						me.nextMatch(collection.at(0))
+						new Table({
+							hideHeaders:true,
+							loading:true,
+							rowTemplate:'<tr data-item-id="<%=id%>">',
+							refreshable:true,
+							header:false,
+							uiClass:'results-table',
+							title:i18n.__('Fixtures'),
+							columns : [{
+								text : i18n.__('Date'),
+								renderer : function(value,data) {
+									return '<span title="' + moment(value).format('MMM DD, YYYY HH:mm') + '">' + moment(value).format('DD/MM') + '</span>';
+								},
+								dataIndex : 'play_at'
+							},{
+								text : i18n.__('Home'),
+								align:'right',
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" class="text-right">'+value.team_name+'</a>';
+								},
+								dataIndex : 'team1'
+							},{
+								text : i18n.__('Home'),
+								cellWidth:36,
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'" class="text-right"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+								},
+								dataIndex : 'team1'
+							},{
+								text : i18n.__('Away'),
+								cellWidth:36,
+								align:'left',
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/" title="'+value.team_name+'"><img src="/images/clubs/20_20/'+value.owner.id +'.png" height="20" width="20" alt="'+value.team_name+'"/></a>';
+								},
+								dataIndex : 'team2'
+							},{
+								text : i18n.__('Away'),
+								align:'left',
+								renderer : function(value,data) {
+									return '<a data-item-id="'+value.id+'" href="/#!team/'+value.id+'/">'+value.team_name+'</a>';
+								},
+								dataIndex : 'team2'
+							}],
+							collection : matches,
+							renderTo:me.$el.find('>.col-lg-3:eq(1)').empty()
+						});
 					}
-				});
+				}
+			});
+		},
+		table:function(model){
+			var me = this;
+			table = new Tables();
+			table.fetch({
+				data:{
+					'event':1
+				},
+				success:function(){
+					new Table({
+						loading:true,
+						refreshable:true,
+						uiClass:'player-list flex-height',
+						title:i18n.__('League Table'),
+						columns : [{
+							text : i18n.__('Team'),
+							renderer : function(fieldValue, cellValues, record) {
+								return '<a data-item-id="'+record.id+'" href="/#!team/'+record.id+'/">'+fieldValue+'</a>';
+							},
+							dataIndex : 'team_name'
+						},{
+							text : i18n.__('M'),
+							renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+								if(record.wins !== null || record.draws !== null || record.loses !== null){
+									return record.wins + record.draws + record.loses;
+								}
+								return '-';
+							},
+							dataIndex : 'team_name'
+						},{
+							text : i18n.__('W'),
+							renderer : function(value,data) {
+								if(value !== null){
+									return value;
+								}
+								return '-';
+							},
+							dataIndex : 'wins'
+						},{
+							text : i18n.__('D'),
+							renderer : function(value,data) {
+								if(value !== null){
+									return value;
+								}
+								return '-';
+							},
+							dataIndex : 'draws'
+						},{
+							text : i18n.__('L'),
+							renderer : function(value,data) {
+								if(value !== null){
+									return value;
+								}
+								return '-';
+							},
+							dataIndex : 'loses'
+						},{
+							text : i18n.__('GF'),
+							renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+								if(record.goals_for !== null){
+									return record.goals_for;
+								}
+								return '-';
+							},
+							dataIndex : 'goals_for'
+						},{
+							text : i18n.__('GA'),
+							renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+								if(record.goals_against !== null){
+									return record.goals_against;
+								}
+								return '-';
+							},
+							dataIndex : 'goals_against'
+						},{
+							text : i18n.__('+/-'),
+							renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+								if(record.goals_for !== null && record.goals_against !== null){
+									return record.goals_for - record.goals_against;
+								}
+								return '-';
+							},
+							dataIndex : 'goals_for'
+						},{
+							text : i18n.__('Pts'),
+							renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+								if(fieldValue !== null){
+									return fieldValue * 3 + record.draws * 1 + record.init_point;
+								}
+								return '-';
+							},
+							dataIndex : 'wins'
+						}],
+						collection : table,
+						renderTo:me.$el.find('>.col-lg-3:eq(2)'),
+						onRefresh:function(){
+							me.collection.fetch();
+						}
+					});
+				}
 			});
 		}
 	}));

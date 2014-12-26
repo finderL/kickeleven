@@ -4,7 +4,7 @@
 define(function(require){
 	var Base = require('../taurus/view/base'),
 	Transfer = require('../collection/transfer'),
-	Table = require('../taurus/view/table'),
+	Table = require('../taurus/panel/table'),
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
         className:'transfer-history',
@@ -19,7 +19,7 @@ define(function(require){
 			});
 			new Table({
 				loading:true,
-				header:false,
+				hideHeaders:true,
 				columns : [{
 					text : i18n.__('Season'),
 					dataIndex : 'season'

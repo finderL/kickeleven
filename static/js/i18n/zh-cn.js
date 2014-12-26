@@ -91,7 +91,10 @@ define(function(require){
 			"Password":"密码",
 			"Create New Account":"创建新帐号",
 			"Username":"用户名",
-			"Repeat password":"重复密码"
+			"Repeat password":"重复密码",
+			"Next Match":"下一场比赛",
+			"Fixtures":"赛程",
+			"League Table":"积分榜"
 		}]]
 	});
 });

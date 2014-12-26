@@ -11,7 +11,7 @@ define(function(require) {
 		return match ? match[1] : '';
     }
 	return Backbone.Router.extend({
-		container : taurus.$body.find('>.container'),
+		container : taurus.$body.find('>.container-fluid'),
 		initialize : function() {
 			this.routeMethods = {};
 			this.bind('all', this._trackPageview);
@@ -61,12 +61,12 @@ define(function(require) {
 		home : function() {
 			var me = this;
 			//var d = taurus.app.switchToPage(Array.prototype.shift.call(arguments),arguments);
-			Backbone.history.navigate("player", true);
-			/*require.async("./page/home", function(Page) {
+			//Backbone.history.navigate("player", true);
+			require.async("./page/home", function(Page) {
 				me.currentPage = new Page({
 					renderTo : me.container.empty()
 				});
-			});*/
+			});
 		},
 		player:function(){
 			var me = this;

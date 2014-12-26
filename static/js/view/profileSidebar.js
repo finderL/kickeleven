@@ -5,8 +5,8 @@ define(function(require){
 	var Base = require('../taurus/view/base'),
 	i18n = require('../i18n/zh-cn');
 	return Base.extend({
-		tpl:'<div class="profile-avatar"><img src="<%=logo%>" /></div><div class="profile-header"><h1 class="profile-header-name"><%=name%></h1><h2 class="profile-header-competition"><a href="#!competition/<%=competition_id%>/"><%=competition_name%></a></h2></div>',
-        className:'profile-sidebar',
+		tpl:'<img src="<%=logo%>" /><div class="caption"><h3><%=name%></h3><h4><a href="#!competition/<%=competition_id%>/"><%=competition_name%></a></h4></div>',
+        className:'thumbnail',
         initialize:function(){
 			Base.prototype.initialize.apply(this,arguments);
 			this.model.on('sync',function(){

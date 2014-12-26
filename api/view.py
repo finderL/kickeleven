@@ -550,16 +550,21 @@ def matchs(id=None, p=None, limit=None,admin=None,**kwargs):
             match = match.to_api(admin)
             n = ResultWrapper(match, match=match)
         else:
+            format = '%Y-%m-%d %H:%M:%S'
             if kwargs.has_key('event'):
                 event = kwargs['event']
                 if kwargs.has_key('fixtures'):
-                    match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at > datetime.datetime.utcnow())
+                    query = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at > datetime.datetime.utcnow())
                 else:
-                    match = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at < datetime.datetime.utcnow(),Matchs.score1 != None).order_by('-play_at')
+                    query = query.join(Rounds, Matchs.round_id == Rounds.id).filter(Rounds.event_id == event,Matchs.play_at < datetime.datetime.utcnow(),Matchs.score1 != None).order_by('-play_at')
+            if kwargs.has_key('start'):
+                query = query.filter(Matchs.play_at > datetime.datetime.strptime(kwargs['start'],format))
+            if kwargs.has_key('end'):
+                query = query.filter(Matchs.play_at < datetime.datetime.strptime(kwargs['end'],format))
             if kwargs.has_key('team'):
                 team = kwargs['team']
-                match = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
-            match = paging(match, limit, p)
+                query = query.filter(or_(Matchs.team1_id == team,Matchs.team2_id == team),Matchs.play_at > datetime.datetime.utcnow())
+            match = paging(query, limit, p)
             n = ResultWrapper(match, match=[v.to_api(admin) for v in match],count=query.count())
     db.close()
     return n

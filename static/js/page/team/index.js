@@ -19,7 +19,7 @@ define(function(require){
 		events:{
 			'click .js-action-profile-name':'playerProfileDialog'
 		},
-		tpl:'<div class="col-lg-3"></div><div class="col-lg-6"></div><div class="col-lg-3"></div>',
+		tpl:'<div class="col-lg-2"></div><div class="col-lg-3"></div><div class="col-lg-4 flex-height"></div><div class="col-lg-3"></div>',
 		initialize:function(options){
 			Base.prototype.initialize.apply(this,arguments);
 			var me = this;
@@ -32,9 +32,10 @@ define(function(require){
 					document.title = model.get('team_name');
 					new ProfileSidebar({
 						model:model,
-						renderTo:me.$el.find('.col-lg-3:eq(0)')
+						uiClass:'text-center',
+						renderTo:me.$el.find('.col-lg-2:eq(0)')
 					});
-					me.listMatchs(model)
+					me.listMatchs(model);
 				}
 			});
 			this.squad = new Players();
@@ -57,9 +58,10 @@ define(function(require){
 			});
 			new Table({
 				loading:true,
+				hideHeaders:true,
 				refreshable:true,
 				uiClass:'player-list',
-				title:i18n.__('Fixtures '),
+				title:i18n.__('Fixtures'),
 				columns : [{
 					text : i18n.__('Date'),
 					renderer : function(value,data) {
@@ -68,15 +70,15 @@ define(function(require){
 					dataIndex : 'play_at'
 				},{
 					text : i18n.__('H/A'),
-					renderer : function(value,data) {
-						return value.id == me.model.id ? 'H' : 'A'
+					renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+						return fieldValue.id == me.model.id ? 'H' : 'A'
 					},
 					dataIndex : 'team1'
 				},{
 					text : i18n.__('Team'),
-					renderer : function(value,data) {
-						var team = value.id != me.model.id ? value : data.team1;
-						return '<a data-item-id="'+team.id+'" href="/#!team/'+team.id+'/"><img src="/images/clubs/20_20/'+team.owner.id +'.png" alt="'+team.team_name+'" height="20" width="20"/></a>';
+					renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+						var team = fieldValue.id != me.model.id ? fieldValue : record.team1;
+						return '<a data-item-id="'+team.id+'" href="/#!team/'+team.id+'/"><img src="/images/clubs/20_20/'+team.owner.id +'.png" alt="'+team.team_name+'" height="20" width="20"/> '+team.team_name+'</a>';
 					},
 					dataIndex : 'team2'
 				}],
@@ -107,14 +109,14 @@ define(function(require){
 				loading:true,
 				header:false,
 				refreshable:true,
-				uiClass:'player-list',
-				title:i18n.__('Club Teams'),
+				uiClass:'player-list flex-height',
+				title:i18n.__('Squad'),
 				columns : [{
 					text : i18n.__('Name'),
 					flex : 1,
 					sortable : false,
-					renderer : function(value,data) {
-						return '<a data-player-id="'+data.id+'" href="/#player/'+data.id+'/" class="js-action-profile-name">'+value+'</a>';
+					renderer : function(fieldValue, cellValues, record, recordIndex, fullIndex) {
+						return '<a data-player-id="'+record.id+'" href="/#player/'+record.id+'/" class="js-action-profile-name">'+fieldValue+'</a>';
 					},
 					dataIndex : 'name'
 				}, {
@@ -145,7 +147,7 @@ define(function(require){
 					dataIndex : 'date_of_birth'
 				}],
 				collection : this.squad,
-				renderTo:me.$el.find('.col-lg-6').empty(),
+				renderTo:me.$el.find('.col-lg-4').empty(),
 				onRefresh:function(){
 					me.collection.fetch();
 				}
@@ -156,29 +158,21 @@ define(function(require){
 			require.async(['../../widget/playerProfilePopDialog'],function(Dialog){
 				var id = $(e.currentTarget).attr('data-player-id'),
 				model = me.squad.get(id);
-				if(model){
-					(new Dialog({
-						width:590,
-						title:i18n.__('Personal Profile'),
-						model:model,
-						renderTo:taurus.$body
-					})).show();
-					model.fetch();
-				} else {
+				if(!model){
 					model = new Player({
 						id:id
 					});
-					model.fetch({
-						success:function(){
-							(new Dialog({
-								width:590,
-								title:i18n.__('Personal Profile'),
-								model:model,
-								renderTo:taurus.$body
-							})).show();
-						}
-					});
 				}
+				model.fetch({
+					success:function(){
+						(new Dialog({
+							width:590,
+							title:i18n.__('Personal Profile'),
+							model:model,
+							renderTo:taurus.$body
+						})).show();
+					}
+				});
 			});
 			return false;
 		}
