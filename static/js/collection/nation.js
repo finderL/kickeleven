@@ -2,7 +2,6 @@
  * @author nttdocomo
  */
 define(function(require) {
-	require('backbone');
 	var Nation = require('../model/nation'),
 	RequestPager = require('./requestPager');
 	return RequestPager.extend({

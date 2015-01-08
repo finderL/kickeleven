@@ -2,7 +2,6 @@
  * @author nttdocomo
  */
 define(function(require) {
-	require('backbone');
 	//var site = require('./admin/admin').site,
 	//patterns = require('./admin/admin').patterns,
 	var route = Backbone.Router.prototype.route;

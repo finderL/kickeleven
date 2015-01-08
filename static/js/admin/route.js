@@ -2,7 +2,6 @@
  * @author nttdocomo
  */
 define(function(require) {
-	require('backbone');
 	var site = require('./admin').site;
 	var NationAdmin = require('./admin').nation;
 	var route = Backbone.Router.prototype.route;

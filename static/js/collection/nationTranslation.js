@@ -2,7 +2,6 @@
  * @author nttdocomo
  */
 define(function(require) {
-	require('backbone');
 	var NationTranslation = require('../model/nationTranslation');
 	return Backbone.Paginator.requestPager.extend({
 		model : NationTranslation,
